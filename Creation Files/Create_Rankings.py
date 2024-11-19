@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 import statsmodels.formula.api as sm
 import statsmodels.api as SM
 import math
-from sklearn.preprocessing import StandardScaler
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from datetime import datetime, date, timedelta
 from datetime import time as datetime_time
