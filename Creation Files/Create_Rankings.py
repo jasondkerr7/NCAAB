@@ -6,6 +6,12 @@
 
 import requests
 from bs4 import BeautifulSoup
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
+from googleapiclient.http import MediaIoBaseUpload
+from googleapiclient.http import MediaFileUpload
+from googleapiclient.errors import HttpError
 import pandas as pd
 import re
 import numpy as np
