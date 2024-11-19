@@ -77,10 +77,8 @@ teamhelp_gl_dict.pop(np.nan, 'nope')
 teamhelp_scores_and_odds_dict = dict(zip(temp['Scores and Odds'],temp['Pandas']))
 teamhelp_scores_and_odds_dict.pop(np.nan, 'nope')
 
-temp_two = temp.loc[~temp['Odds Shark'].isna(),['Odds Shark','Pandas']].drop_duplicates().copy()
-temp_two = temp.loc[~temp['Odds Shark Opponents'].isna(),['Odds Shark Opponents','Pandas']].drop_duplicates().copy()
-teamhelp_os = dict(zip(temp_two['Odds Shark'],temp_two['Pandas']))
-oppteamhelp_os = dict(zip(temp_two['Odds Shark Opponents'],temp_two['Pandas']))
+teamhelp_os = dict(zip(temp['Odds Shark'],temp['Pandas']))
+teamhelp_os.pop(np.nan, 'nope')
 
 # -- Rankings -- #
 # Initialize
