@@ -38,4 +38,4 @@ jobs:
           pip install -r requirements.txt
       - name: Run the Rankings Creation python file
         run: |
-          python Creation Files/Create_Rankings.py
+          python "Creation Files/Create_Rankings.py"
