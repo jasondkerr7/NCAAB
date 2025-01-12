@@ -65,7 +65,9 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 barttorvik_headers = pd.read_csv('Static Files/Barttorvik Headers.csv')
 
 # Team Help
-temp = pd.read_csv('Static Files/Team Help.csv')
+temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
+
+# Create from files
 teamhelp = dict(zip(temp['College Poll Archive'],temp['Pandas']))
 
 teamhelp_barttorvik = dict(zip(temp['Pandas'],temp['Bart Torvik']))
