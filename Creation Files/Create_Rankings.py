@@ -62,7 +62,7 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 
 # -- Read Files -- #
 # Bart Torvik Headers
-barttorvik_headers = pd.read_csv('Static Files/Barttorvik Headers.csv')
+barttorvik_headers = pd.read_csv('https://docs.google.com/spreadsheets/d/1_alO289CpDPCFemFrC5D-sxL8WJqWj57Krny06a4K6M/export?format=csv&gid=0')
 
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
