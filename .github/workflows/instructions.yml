@@ -39,3 +39,7 @@ jobs:
       - name: Run the Rankings Creation python file
         run: |
           python "Creation Files/Create_Rankings.py"
+      - name: Run the Odds Creation python file
+        run: |
+          python "Creation Files/Create_Odds.py"
+      
