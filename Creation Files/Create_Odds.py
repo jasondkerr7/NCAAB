@@ -74,7 +74,7 @@ driver = webdriver.Chrome(service=service, options=options)
 
 # Access Website
 driver.get('https://betiq.teamrankings.com/college-basketball/betting-trends/custom-trend-tool')
-driver.execute_script("document.body.style.zoom='25%'")
+driver.execute_script("document.body.style.zoom='10%'")
 ## Change to 100 games per page
 time.sleep(1.5)
 driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
