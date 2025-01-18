@@ -44,6 +44,7 @@ import urllib
 import gzip
 import json
 import lxml
+import sys
 
 # -- GOOGLE CONNECTION -- #
 # Prepare auth json for google connection
@@ -81,7 +82,19 @@ driver.execute_script("window.scrollTo(0, "+str(y)+")")
 
 ## Change to 100 games per page
 time.sleep(2.5)
-driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
+try:
+  driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
+except:
+  driver.get_screenshot_as_file("screenshot.png")
+  # Screenshot
+  file_metadata = {'name': 'screenshot.png',
+                  'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
+  media = MediaFileUpload('screenshot-error.png',
+                          mimetype='image/png')
+  file = ggl_drive.files().create(body=file_metadata, media_body=media,
+                                fields=returned_fields).execute()
+  sys.exit
+  
 time.sleep(1.2)
 driver.find_element(By.XPATH,'//option[@value="100"]').click()
 time.sleep(1)
