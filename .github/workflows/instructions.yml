@@ -39,9 +39,9 @@ jobs:
       # - name: Run the Rankings Creation python file
       #   run: |
       #     python "Creation Files/Create_Rankings.py"
-      # - name: Run the Odds Creation python file
-      #   run: |
-      #     python "Creation Files/Create_Odds.py"
-      - name: Run the test python file
+      - name: Run the Odds Creation python file
         run: |
-          python "Creation Files/test.py"
+          python "Creation Files/Create_Odds.py"
+      # - name: Run the test python file
+      #   run: |
+      #     python "Creation Files/test.py"
