@@ -150,7 +150,6 @@ for i in range(0,1000):
       print('comparison to break - last date of the dataframe: ',temp.loc[len(temp)-1,'Date'])
       print('comparison to break - Start Date: ',pd.to_datetime(start_date))
       print('Broken at this Iteration: ',i,' // Page Number',page_num)
-      driver.get_screenshot_as_file("screenshot.png")
       break
 
 # ----------
@@ -187,12 +186,5 @@ file_metadata = {'name': creation_name+'.csv',
                 'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
 media = MediaFileUpload('saved_file.csv',
                         mimetype='text/csv')
-file = ggl_drive.files().create(body=file_metadata, media_body=media,
-                              fields=returned_fields).execute()
-# Screenshot
-file_metadata = {'name': 'screenshot.png',
-                'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
-media = MediaFileUpload('screenshot.png',
-                        mimetype='image/png')
 file = ggl_drive.files().create(body=file_metadata, media_body=media,
                               fields=returned_fields).execute()
