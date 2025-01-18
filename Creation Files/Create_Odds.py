@@ -74,11 +74,15 @@ driver = webdriver.Chrome(service=service, options=options)
 
 # Access Website
 driver.get('https://betiq.teamrankings.com/college-basketball/betting-trends/custom-trend-tool')
-driver.execute_script("document.body.style.zoom='10%'")
+driver.execute_script("document.body.style.zoom='80%'")
+time.sleep(2)
+y = driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').location['y']-150
+driver.execute_script("window.scrollTo(0, "+str(y)+")")
+
 ## Change to 100 games per page
-time.sleep(1.5)
+time.sleep(2.5)
 driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
-time.sleep(0.2)
+time.sleep(1.2)
 driver.find_element(By.XPATH,'//option[@value="100"]').click()
 time.sleep(1)
 ## Sort Dates to pull chronological games
