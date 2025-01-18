@@ -148,8 +148,8 @@ for i in range(0,1000):
       break
 
 # Remove games before end_date
-# odds_final = game_log_table[game_log_table['Date'] < pd.to_datetime(end_date)]
-print('Final Length of Odds File: ',len(game_log_table))
+odds_final_wip = game_log_table[game_log_table['Date'] < pd.to_datetime(end_date)].copy()
+odds_final = odds_final_wip[odds_final_wip['Date'] > pd.to_datetime(start_date)].copy()
 
 #---------
 # Export #
@@ -157,7 +157,7 @@ print('Final Length of Odds File: ',len(game_log_table))
 
 # File Creation
 creation_name = 'Odds - '+str(pd.to_datetime(start_date).year)+'-'+str(pd.to_datetime(end_date).year)
-game_log_table.to_csv('saved_file.csv')
+odds_final.to_csv('saved_file.csv', index=False)
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
