@@ -112,7 +112,7 @@ temp['Date'] = pd.to_datetime(temp['Date'])
 game_log_table = temp.copy()
 
 # Loop through each new page
-for i in range(0,100):
+for i in range(0,200):
     page_num = int(soup.find_all('a',{'class':'paginate_button current'})[0].text)
     driver.find_element(By.XPATH,'//a[@class="paginate_button next"][1]').click()
     time.sleep(1)
@@ -128,10 +128,15 @@ for i in range(0,100):
     temp['Date'] = pd.to_datetime(temp['Date'])
     game_log_table = pd.concat([game_log_table, temp], ignore_index=True)
     if temp.loc[len(temp)-1,'Date'] < pd.to_datetime(start_date):
-        break
+      print('comparison to break - last date of the dataframe: ',temp.loc[len(temp)-1,'Date'])
+      print('comparison to break - Start Date: ',pd.to_datetime(start_date))
+      print('Broken at this Iteration: ',i,' // Page Number',page_num)
+      driver.get_screenshot_as_file("screenshot.png")
+      break
 
 # Remove games before end_date
-odds_final = game_log_table[game_log_table['Date'] < pd.to_datetime(end_date)]
+# odds_final = game_log_table[game_log_table['Date'] < pd.to_datetime(end_date)]
+print('Final Length of Odds File: ',len(game_log_table))
 
 #---------
 # Export #
@@ -139,7 +144,7 @@ odds_final = game_log_table[game_log_table['Date'] < pd.to_datetime(end_date)]
 
 # File Creation
 creation_name = 'Odds - '+str(pd.to_datetime(start_date).year)+'-'+str(pd.to_datetime(end_date).year)
-odds_final.to_csv('saved_file.csv')
+game_log_table.to_csv('saved_file.csv')
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
@@ -147,5 +152,12 @@ file_metadata = {'name': creation_name+'.csv',
                 'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
 media = MediaFileUpload('saved_file.csv',
                         mimetype='text/csv')
+file = ggl_drive.files().create(body=file_metadata, media_body=media,
+                              fields=returned_fields).execute()
+# Screenshot
+file_metadata = {'name': 'screenshot.png',
+                'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
+media = MediaFileUpload('screenshot.png',
+                        mimetype='image/png')
 file = ggl_drive.files().create(body=file_metadata, media_body=media,
                               fields=returned_fields).execute()
