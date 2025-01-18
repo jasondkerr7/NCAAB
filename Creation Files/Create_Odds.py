@@ -60,6 +60,12 @@ credentials = service_account.Credentials.from_service_account_info(
                               scopes=scope)
 ggl_drive = build('drive', 'v3', credentials=credentials)
 
+# -- Read Files -- #
+# Team Help
+temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
+# Create from files
+teamhelp = dict(zip(temp['Team Rankings'],temp['Pandas']))
+
 # -- Odds -- #
 # Initiate
 start_date = '2021-06-01'
@@ -147,9 +153,25 @@ for i in range(0,1000):
       driver.get_screenshot_as_file("screenshot.png")
       break
 
-# Remove games before end_date
+# ----------
+# Processing
+# ----------
+
+# Remove games outside of start and end date
 odds_final_wip = game_log_table[game_log_table['Date'] < pd.to_datetime(end_date)].copy()
 odds_final = odds_final_wip[odds_final_wip['Date'] > pd.to_datetime(start_date)].copy()
+# Fix Score
+odds_final['PF'] = pd.to_numeric(all_game_logs['Score'].str.split('-').str[0])
+odds_final['PA'] = pd.to_numeric(all_game_logs['Score'].str.split('-').str[1])
+odds_final.drop('Score',axis=1,inplace=True)
+# Fix team names
+odds_final['Team'].replace(teamhelp,inplace=True)
+odds_final['Opponent'].replace(teamhelp,inplace=True)
+# Fix column names
+odds_final.rename(columns={'Total (O/U)':'Total',
+                          'Money Line':'ML',
+                          'O/U Margin':'Total Margin'})
+
 
 #---------
 # Export #
