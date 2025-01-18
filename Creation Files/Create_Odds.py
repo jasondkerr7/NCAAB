@@ -161,8 +161,8 @@ for i in range(0,1000):
 odds_final_wip = game_log_table[game_log_table['Date'] < pd.to_datetime(end_date)].copy()
 odds_final = odds_final_wip[odds_final_wip['Date'] > pd.to_datetime(start_date)].copy()
 # Fix Score
-odds_final['PF'] = pd.to_numeric(all_game_logs['Score'].str.split('-').str[0])
-odds_final['PA'] = pd.to_numeric(all_game_logs['Score'].str.split('-').str[1])
+odds_final['PF'] = pd.to_numeric(odds_final['Score'].str.split('-').str[0])
+odds_final['PA'] = pd.to_numeric(odds_final['Score'].str.split('-').str[1])
 odds_final.drop('Score',axis=1,inplace=True)
 # Fix team names
 odds_final['Team'].replace(teamhelp,inplace=True)
