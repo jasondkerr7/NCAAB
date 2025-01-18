@@ -74,31 +74,22 @@ driver = webdriver.Chrome(service=service, options=options)
 
 # Access Website
 driver.get('https://betiq.teamrankings.com/college-basketball/betting-trends/custom-trend-tool')
+y = driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').location['y']-150
+driver.execute_script("window.scrollTo(0, "+str(y)+")")
+time.sleep(2)
 driver.get_screenshot_as_file("screenshot.png")
-driver.execute_script("document.body.style.zoom='25%'")
-driver.get_screenshot_as_file("screenshot25.png")
-driver.execute_script("document.body.style.zoom='10%'")
-driver.get_screenshot_as_file("screenshot10.png")
+time.sleep(3)
+try:
+  driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
+  print('It Worzed!!')
+except Exception as e:
+  print('Herez the error:',e)
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
 file_metadata = {'name': 'screenshot.png',
                 'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
 media = MediaFileUpload('screenshot.png',
-                        mimetype='image/png')
-file = ggl_drive.files().create(body=file_metadata, media_body=media,
-                              fields=returned_fields).execute()
-
-file_metadata = {'name': 'screenshot25.png',
-                'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
-media = MediaFileUpload('screenshot25.png',
-                        mimetype='image/png')
-file = ggl_drive.files().create(body=file_metadata, media_body=media,
-                              fields=returned_fields).execute()
-
-file_metadata = {'name': 'screenshot10.png',
-                'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
-media = MediaFileUpload('screenshot10.png',
                         mimetype='image/png')
 file = ggl_drive.files().create(body=file_metadata, media_body=media,
                               fields=returned_fields).execute()
