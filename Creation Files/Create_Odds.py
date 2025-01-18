@@ -112,7 +112,7 @@ temp['Date'] = pd.to_datetime(temp['Date'])
 game_log_table = temp.copy()
 
 # Loop through each new page
-for i in range(0,200):
+for i in range(0,1000):
     page_num = int(soup.find_all('a',{'class':'paginate_button current'})[0].text)
     driver.find_element(By.XPATH,'//a[@class="paginate_button next"][1]').click()
     time.sleep(1)
