@@ -61,6 +61,9 @@ credentials = service_account.Credentials.from_service_account_info(
 ggl_drive = build('drive', 'v3', credentials=credentials)
 
 # -- Read Files -- #
+# Previous Odds
+previous_odds = pd.read_csv('https://docs.google.com/uc?id=1EsJd7qA8fZJFn7763V6WWweXmUS2685i')
+
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
 # Create from files
@@ -177,14 +180,15 @@ odds_final.rename(columns={'Total (O/U)':'Total',
 #---------
 
 # File Creation
-creation_name = 'Odds - '+str(pd.to_datetime(start_date).year)+'-'+str(pd.to_datetime(end_date).year)
+creation_name = 'Current Year Odds'
 odds_final.to_csv('saved_file.csv', index=False)
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
-file_metadata = {'name': creation_name+'.csv',
-                'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
+file_metadata = {'name': creation_name+'.csv'}
 media = MediaFileUpload('saved_file.csv',
                         mimetype='text/csv')
-file = ggl_drive.files().create(body=file_metadata, media_body=media,
+file = ggl_drive.files().create(fileId='1EsJd7qA8fZJFn7763V6WWweXmUS2685i',
+                                body=file_metadata, 
+                                media_body=media,
                               fields=returned_fields).execute()
