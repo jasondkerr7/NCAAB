@@ -88,48 +88,36 @@ teamhelp_os.pop(np.nan, 'nope')
 # -- Rankings -- #
 # Initialize
 rankings = {}
-stnum = 1281
 
-# Find Last Rankings
-rank_season = datetime.now().year if datetime.now().month < 6 else datetime.now().year + 1
-url = 'https://www.collegepollarchive.com/basketball/men/ap/seasons.cfm?seasonid='+str(rank_season)
+url = "https://www.collegepollarchive.com/basketball/men/ap/seasons.cfm"
 page = requests.get(url)
 soup = BeautifulSoup(page.text, 'lxml')
-## get last value of Poll ID and add 1
-endnum = int(soup.find('select',{'name':'appollid'}).find_all('option')[-1]['value']) + 1
 
-for x in range(stnum, endnum):
-    url = "https://www.collegepollarchive.com/mbasketball/ap/seasons.cfm?appollid="+str(x)+"#.Y329GOzMJ-X"
-    page = requests.get(url)
-    soup = BeautifulSoup(page.text, 'lxml')
+# Test for Preseason/Final
+secondword = soup.find('h2').text.split(' ')[1]
 
-    # Test for Preseason/Final
-    secondword = soup.find('h2').text.split(' ')[1]
-    if secondword == 'Final':
-        continue
+# Pull Table
+table = pd.read_html(StringIO(page.text))[7]
+table.drop('Rank.1',axis=1,inplace=True)
+table.rename(columns={'Team (FPV)':'Team'},inplace=True)
+tab = table[~table.Rank.isnull()].iloc[0:25].copy()
+tab['Rank'] = tab['Rank'].astype(int)
+tab['Team'] = [x.split('(')[0].strip() for x in tab.Team]
 
-    # Pull Table
-    table = pd.read_html(StringIO(page.text))[7]
-    table.drop('Rank.1',axis=1,inplace=True)
-    table.rename(columns={'Team (FPV)':'Team'},inplace=True)
-    tab = table[~table.Rank.isnull()].iloc[0:25].copy()
-    tab['Rank'] = tab['Rank'].astype(int)
-    tab['Team'] = [x.split('(')[0].strip() for x in tab.Team]
+# Pull Date
+if secondword == 'Preseason':
+    yr = int(soup.find('h2').text.split(' ')[0].strip())
+    date = datetime(year=yr-1, day=1, month=10)
+else:
+    temp = soup.find('h2').text.split(' AP')[0]
+    temp2 = temp.split(' ')[0]
+    mnth = datetime.strptime(temp2, '%B').month
+    dy = int(temp.split(' ')[1].split(',')[0])
+    yr = int(temp.split(',')[1].strip())
+    date = datetime(year=yr, day=dy, month=mnth)
 
-    # Pull Date
-    if secondword == 'Preseason':
-        yr = int(soup.find('h2').text.split(' ')[0].strip())
-        date = datetime(year=yr-1, day=1, month=10)
-    else:
-        temp = soup.find('h2').text.split(' AP')[0]
-        temp2 = temp.split(' ')[0]
-        mnth = datetime.strptime(temp2, '%B').month
-        dy = int(temp.split(' ')[1].split(',')[0])
-        yr = int(temp.split(',')[1].strip())
-        date = datetime(year=yr, day=dy, month=mnth)
-
-    # Set Dictionary Table
-    rankings[date] = tab
+# Set Dictionary Table
+rankings[date] = tab
 
 # Expand into Dataframe of all information (Rank, Team, Conference, Date)
 counter = 0
@@ -146,17 +134,20 @@ allranks['Team'].replace(teamhelp, inplace=True)
 ##################################################
 ###### End Setup #################################
 ##################################################
-
-# Test File Creation #
-creation_name = 'Current Year Rankings'
-allranks.to_csv('saved_file.csv')
-
-# Upload File
-returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
-file_metadata = {'name': creation_name+'.csv'}
-media = MediaFileUpload('saved_file.csv',
-                        mimetype='text/csv')
-file = ggl_drive.files().update(fileId='1YI5txYdHgmB3Sw_wwxY0eLsaXzD4dyrr',
-                                body=file_metadata, 
-                                media_body=media,
-                              fields=returned_fields).execute()
+if secondword != 'Final':
+  final = pd.concat([previous_rankings,allranks],ignore_index=True)
+  final.drop_duplicates(inplace=True)
+  
+  # Test File Creation #
+  creation_name = 'Current Year Rankings'
+  final.to_csv('saved_file.csv')
+  
+  # Upload File
+  returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
+  file_metadata = {'name': creation_name+'.csv'}
+  media = MediaFileUpload('saved_file.csv',
+                          mimetype='text/csv')
+  file = ggl_drive.files().update(fileId='1YI5txYdHgmB3Sw_wwxY0eLsaXzD4dyrr',
+                                  body=file_metadata, 
+                                  media_body=media,
+                                fields=returned_fields).execute()
