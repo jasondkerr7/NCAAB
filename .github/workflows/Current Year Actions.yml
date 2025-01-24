@@ -36,9 +36,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      # - name: Run the Rankings Creation python file
-      #   run: |
-      #     python "Creation Files/Create_Rankings.py"
+      - name: Run the Rankings Creation python file
+        run: |
+          python "Creation Files/Create_Rankings.py"
       - name: Run the Odds Creation python file
         run: |
           python "Creation Files/Create_Odds.py"
