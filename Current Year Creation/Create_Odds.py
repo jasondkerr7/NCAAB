@@ -96,9 +96,9 @@ try:
 except:
   driver.get_screenshot_as_file("screenshot.png")
   # Screenshot
-  file_metadata = {'name': 'screenshot.png',
+  file_metadata = {'name': 'screenshot-error.png',
                   'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
-  media = MediaFileUpload('screenshot-error.png',
+  media = MediaFileUpload('screenshot.png',
                           mimetype='image/png')
   file = ggl_drive.files().create(body=file_metadata, media_body=media,
                                 fields=returned_fields).execute()
