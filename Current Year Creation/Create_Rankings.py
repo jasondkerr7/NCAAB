@@ -61,6 +61,9 @@ credentials = service_account.Credentials.from_service_account_info(
 ggl_drive = build('drive', 'v3', credentials=credentials)
 
 # -- Read Files -- #
+# Read Rankings File
+previous_rankings = pd.read_csv('https://docs.google.com/spreadsheets/d/1YI5txYdHgmB3Sw_wwxY0eLsaXzD4dyrr/export?format=csv&gid=0')
+
 # Bart Torvik Headers
 barttorvik_headers = pd.read_csv('https://docs.google.com/spreadsheets/d/1_alO289CpDPCFemFrC5D-sxL8WJqWj57Krny06a4K6M/export?format=csv&gid=0')
 
@@ -145,14 +148,14 @@ allranks['Team'].replace(teamhelp, inplace=True)
 ##################################################
 
 # Test File Creation #
-creation_name = 'Rankings - '+datetime.today().strftime('%m.%d.%y')
+creation_name = 'Current Year Rankings'
 allranks.to_csv('saved_file.csv')
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
-file_metadata = {'name': creation_name+'.csv',
-                'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
+file_metadata = {'name': creation_name+'.csv'}
 media = MediaFileUpload('saved_file.csv',
                         mimetype='text/csv')
-file = ggl_drive.files().create(body=file_metadata, media_body=media,
+file = ggl_drive.files().update(body=file_metadata, 
+                                media_body=media,
                               fields=returned_fields).execute()
