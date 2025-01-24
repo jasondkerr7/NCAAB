@@ -94,16 +94,19 @@ time.sleep(2.5)
 try:
   driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
 except:
-  driver.get_screenshot_as_file("screenshot.png")
-  # Screenshot
-  returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
-  file_metadata = {'name': 'screenshot-error.png',
-                  'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
-  media = MediaFileUpload('screenshot.png',
-                          mimetype='image/png')
-  file = ggl_drive.files().create(body=file_metadata, media_body=media,
-                                fields=returned_fields).execute()
-  sys.exit
+  try:
+    driver.find_element(By.XPATH,'//button[@class="onetrust-close-btn-handler onetrust-close-btn-ui banner-close-button ot-close-icon"]').click()
+  except:  
+    driver.get_screenshot_as_file("screenshot.png")
+    # Screenshot
+    returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
+    file_metadata = {'name': 'screenshot-error.png',
+                    'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
+    media = MediaFileUpload('screenshot.png',
+                            mimetype='image/png')
+    file = ggl_drive.files().create(body=file_metadata, media_body=media,
+                                  fields=returned_fields).execute()
+    sys.exit
   
 time.sleep(1.2)
 driver.find_element(By.XPATH,'//option[@value="100"]').click()
@@ -189,7 +192,7 @@ returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
 file_metadata = {'name': creation_name+'.csv'}
 media = MediaFileUpload('saved_file.csv',
                         mimetype='text/csv')
-file = ggl_drive.files().create(fileId='1EsJd7qA8fZJFn7763V6WWweXmUS2685i',
+file = ggl_drive.files().update(fileId='1EsJd7qA8fZJFn7763V6WWweXmUS2685i',
                                 body=file_metadata, 
                                 media_body=media,
                               fields=returned_fields).execute()
