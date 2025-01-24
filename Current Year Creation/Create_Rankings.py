@@ -156,6 +156,7 @@ returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
 file_metadata = {'name': creation_name+'.csv'}
 media = MediaFileUpload('saved_file.csv',
                         mimetype='text/csv')
-file = ggl_drive.files().update(body=file_metadata, 
+file = ggl_drive.files().update(fileId='1YI5txYdHgmB3Sw_wwxY0eLsaXzD4dyrr',
+                                body=file_metadata, 
                                 media_body=media,
                               fields=returned_fields).execute()
