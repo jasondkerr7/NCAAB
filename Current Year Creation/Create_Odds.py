@@ -96,6 +96,7 @@ try:
 except:
   driver.get_screenshot_as_file("screenshot.png")
   # Screenshot
+  returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
   file_metadata = {'name': 'screenshot-error.png',
                   'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
   media = MediaFileUpload('screenshot.png',
