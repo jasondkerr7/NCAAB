@@ -86,14 +86,7 @@ teamhelp_os.pop(np.nan, 'nope')
 # Initialize
 rankings = {}
 stnum = 934
-
-# Find Last Rankings
-rank_season = datetime.now().year if datetime.now().month < 6 else datetime.now().year + 1
-url = 'https://www.collegepollarchive.com/basketball/men/ap/seasons.cfm?seasonid='+str(rank_season)
-page = requests.get(url)
-soup = BeautifulSoup(page.text, 'lxml')
-## get last value of Poll ID and add 1
-endnum = int(soup.find('select',{'name':'appollid'}).find_all('option')[-1]['value']) + 1
+endnum = 1281
 
 for x in range(stnum, endnum):
     url = "https://www.collegepollarchive.com/mbasketball/ap/seasons.cfm?appollid="+str(x)+"#.Y329GOzMJ-X"
@@ -145,7 +138,7 @@ allranks['Team'].replace(teamhelp, inplace=True)
 ##################################################
 
 # Test File Creation #
-creation_name = 'Rankings - '+datetime.today().strftime('%m.%d.%y')
+creation_name = 'Rankings through 2024'
 allranks.to_csv('saved_file.csv')
 
 # Upload File
