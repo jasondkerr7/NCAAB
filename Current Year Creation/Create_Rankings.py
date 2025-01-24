@@ -85,7 +85,7 @@ teamhelp_os.pop(np.nan, 'nope')
 # -- Rankings -- #
 # Initialize
 rankings = {}
-stnum = 934
+stnum = 1281
 
 # Find Last Rankings
 rank_season = datetime.now().year if datetime.now().month < 6 else datetime.now().year + 1
