@@ -68,8 +68,8 @@ teamhelp = dict(zip(temp['Team Rankings'],temp['Pandas']))
 
 # -- Odds -- #
 # Initiate
-start_date = '2021-06-01'
-end_date = '2024-06-01'
+start_date = '2024-06-01'
+end_date = '2025-06-01'
 
 # Setup Connection
 service = Service()
