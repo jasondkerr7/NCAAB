@@ -62,7 +62,7 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 
 # -- Read Files -- #
 # Read Rankings File
-previous_rankings = pd.read_csv('https://docs.google.com/spreadsheets/d/1YI5txYdHgmB3Sw_wwxY0eLsaXzD4dyrr/export?format=csv&gid=0')
+previous_rankings = pd.read_csv('https://docs.google.com/uc?id=1YI5txYdHgmB3Sw_wwxY0eLsaXzD4dyrr')
 
 # Bart Torvik Headers
 barttorvik_headers = pd.read_csv('https://docs.google.com/spreadsheets/d/1_alO289CpDPCFemFrC5D-sxL8WJqWj57Krny06a4K6M/export?format=csv&gid=0')
