@@ -63,7 +63,6 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 # -- Read Files -- #
 # Previous Odds
 previous_odds = pd.read_csv('https://docs.google.com/uc?id=1EsJd7qA8fZJFn7763V6WWweXmUS2685i')
-
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
 # Create from files
@@ -71,7 +70,7 @@ teamhelp = dict(zip(temp['Team Rankings'],temp['Pandas']))
 
 # -- Odds -- #
 # Initiate
-start_date = '2024-06-01'
+start_date = (previous_odds['Date'].max() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
 end_date = '2025-06-01'
 
 # Setup Connection
@@ -184,10 +183,13 @@ odds_final.rename(columns={'Total (O/U)':'Total',
 #---------
 # Export #
 #---------
+# Final
+final = pd.concat([previous_odds, odds_final],ignore_index=True)
+final.drop_duplicates(inplace=True)
 
 # File Creation
 creation_name = 'Current Year Odds'
-odds_final.to_csv('saved_file.csv', index=False)
+final.to_csv('saved_file.csv', index=False)
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
