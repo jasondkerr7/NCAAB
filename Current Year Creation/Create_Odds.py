@@ -70,7 +70,7 @@ teamhelp = dict(zip(temp['Team Rankings'],temp['Pandas']))
 
 # -- Odds -- #
 # Initiate
-start_date = (previous_odds['Date'].max() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+start_date = (previous_odds['Date'].max() - timedelta(days=1)).strftime("%Y-%m-%d")
 end_date = '2025-06-01'
 
 # Setup Connection
