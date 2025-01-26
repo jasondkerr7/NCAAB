@@ -96,6 +96,7 @@ except:
   try:
     driver.find_element(By.XPATH,'//button[@class="onetrust-close-btn-handler onetrust-close-btn-ui banner-close-button ot-close-icon"]').click()
     time.sleep(1)
+    print('%%%%%%%%%%%%%%%%%%%%%%%%%      Closed out the Cookies bar          %%%%%%%%%%%%%%%%%%%%%%%%')
     driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
   except:  
     driver.get_screenshot_as_file("screenshot.png")
