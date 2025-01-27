@@ -186,6 +186,8 @@ odds_final.rename(columns={'Total (O/U)':'Total',
 #---------
 # Final
 final = pd.concat([previous_odds, odds_final],ignore_index=True)
+final['Date'] = pd.to_datetime(final['Date'])
+final.sort_values('Date',inplace=True)
 final.drop_duplicates(inplace=True)
 
 # File Creation
