@@ -97,7 +97,11 @@ soup = BeautifulSoup(page.text, 'lxml')
 secondword = soup.find('h2').text.split(' ')[1]
 
 # Pull Table
-table = pd.read_html(StringIO(page.text))[7]
+for tablenum in range(0,len(pd.read_html(StringIO(page.text)))):
+  if 'Team (FPV)' in pd.read_html(StringIO(page.text))[tablenum].columns:
+    correct_table = tablenum
+    break
+table = pd.read_html(StringIO(page.text))[correct_table]
 table.drop('Rank.1',axis=1,inplace=True)
 table.rename(columns={'Team (FPV)':'Team'},inplace=True)
 tab = table[~table.Rank.isnull()].iloc[0:25].copy()
@@ -130,6 +134,7 @@ for ky in rankings.keys():
         allranks = pd.concat([allranks,temp],axis=0).reset_index(drop=True)
     counter += 1
 allranks['Team'].replace(teamhelp, inplace=True)
+allranks = allranks[['Rank','Team','Conference','Record','Points','Coaches','Date']].copy()
 
 ##################################################
 ###### End Setup #################################
