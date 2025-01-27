@@ -99,7 +99,11 @@ for x in range(stnum, endnum):
         continue
 
     # Pull Table
-    table = pd.read_html(StringIO(page.text))[7]
+    for tablenum in pd.read_html(StringIO(page.text)):
+      if 'Team (FPV)' in pd.read_html(StringIO(page.text))[0].columns:
+        correct_table = tablenum
+        break
+    table = pd.read_html(StringIO(page.text))[correct_table]
     table.drop('Rank.1',axis=1,inplace=True)
     table.rename(columns={'Team (FPV)':'Team'},inplace=True)
     tab = table[~table.Rank.isnull()].iloc[0:25].copy()
