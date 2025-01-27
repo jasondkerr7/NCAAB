@@ -62,7 +62,7 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 
 # -- Read Files -- #
 # Previous Odds
-previous_odds = pd.read_csv('https://docs.google.com/uc?id=1EsJd7qA8fZJFn7763V6WWweXmUS2685i')
+previous_odds = pd.read_csv('https://docs.google.com/uc?id=1d6slsiCtovW0zJgG5eqrgAFzJEW17r7K')
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
 # Create from files
@@ -199,7 +199,7 @@ returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
 file_metadata = {'name': creation_name+'.csv'}
 media = MediaFileUpload('saved_file.csv',
                         mimetype='text/csv')
-file = ggl_drive.files().update(fileId='1EsJd7qA8fZJFn7763V6WWweXmUS2685i',
+file = ggl_drive.files().update(fileId='1d6slsiCtovW0zJgG5eqrgAFzJEW17r7K',
                                 body=file_metadata, 
                                 media_body=media,
                               fields=returned_fields).execute()
