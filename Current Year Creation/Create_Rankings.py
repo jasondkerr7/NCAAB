@@ -145,7 +145,7 @@ if secondword != 'Final':
   
   # Test File Creation #
   creation_name = 'Current Year Rankings'
-  final.to_csv('saved_file.csv')
+  final.to_csv('saved_file.csv',index=False)
   
   # Upload File
   returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
