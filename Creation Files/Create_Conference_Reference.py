@@ -104,7 +104,7 @@ for yr in yearrange:
   conferences_bt = pd.concat([conferences_bt, temp], ignore_index=True)
 
 # Fix Team Names
-conferences_bt = conferences_bt['Team'].replace(teamhelp)
+conferences_bt['Team'] = conferences_bt['Team'].replace(teamhelp)
 
 ##################################################
 ###### End Setup #################################
