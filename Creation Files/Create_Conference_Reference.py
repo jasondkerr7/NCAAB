@@ -112,7 +112,7 @@ conferences_bt['Team'] = conferences_bt['Team'].replace(teamhelp)
 
 # File Creation #
 creation_name = 'Conference Reference through 2025'
-conferences_bt.to_csv('saved_file.csv')
+conferences_bt.to_csv('saved_file.csv', index=False)
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
