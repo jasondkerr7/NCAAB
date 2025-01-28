@@ -170,7 +170,8 @@ odds_final['Opponent'].replace(teamhelp,inplace=True)
 odds_final = odds_final.rename(columns={'Total (O/U)':'Total',
                                          'Money Line':'ML',
                                         'O/U Margin':'TotalMargin',
-                                         'ATS Margin':'ATSMargin'})
+                                         'ATS Margin':'ATSMargin',
+                                        'Opponent':'Opp'})
 
 
 #---------
