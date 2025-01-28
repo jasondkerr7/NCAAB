@@ -144,7 +144,7 @@ allranks = allranks[['Rank','Team','Conference','Record','Points','Coaches','Dat
 
 # Test File Creation #
 creation_name = 'Rankings through 2024'
-allranks.to_csv('saved_file.csv')
+allranks.to_csv('saved_file.csv',index=False)
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
