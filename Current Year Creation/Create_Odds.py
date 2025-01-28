@@ -176,9 +176,11 @@ odds_final.drop('Score',axis=1,inplace=True)
 odds_final['Team'].replace(teamhelp,inplace=True)
 odds_final['Opponent'].replace(teamhelp,inplace=True)
 # Fix column names
-odds_final.rename(columns={'Total (O/U)':'Total',
-                          'Money Line':'ML',
-                          'O/U Margin':'Total Margin'})
+odds_final = odds_final.rename(columns={'Total (O/U)':'Total',
+                                         'Money Line':'ML',
+                                        'O/U Margin':'TotalMargin',
+                                         'ATS Margin':'ATSMargin',
+                                        'Opponent':'Opp'})
 
 
 #---------
