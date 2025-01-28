@@ -67,7 +67,8 @@ rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vO
 ### Pre-Processing
 rankings['Date'] = pd.to_datetime(rankings['Date'])
 odds['Date'] = pd.to_datetime(odds['Date'])
-odds['Season'] = np.where(odds['Date'].dt.month > 6, odds['Date'].dt.year + 1, odds['Date'].dt.year)
+odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
+odds = odds.sort_values('Date', ascending=True)
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
 # Create from files
@@ -101,5 +102,49 @@ opp_rankings_ref = rankings_ref.rename(columns={'Team':'Opp',
 temp = pd.merge(odds, rankings_ref, on=['Team','DateRef'], how='left')
 oddsv2 = pd.merge(temp, opp_rankings_ref, on=['Opp','DateRef'], how='left')
 cy_ncaabor = cy_ncaabor.drop_duplicates().reset_index(drop=True)
+
+# -------------------------- #
+# -- Create New Variables -- #
+# -------------------------- #
+
+# -- Profits --
+oddsv2['ATSProfit'] = (oddsv2['ATSMargin'] > 0)*100 + (oddsv2['ATSMargin'] < 0)*-110
+oddsv2['MLProfit'] = ((oddsv2['ML'] < 0)*(oddsv2['MOV'] > 0)*100 + # Favorite Winner
+                      (oddsv2['ML'] > 0)*(oddsv2['MOV'] > 0)*(oddsv2['ML']) + # Underdog Winner
+                      (oddsv2['ML'] < 0)*(oddsv2['MOV'] < 0)*(oddsv2['ML']) + # Favorite Loser
+                      (oddsv2['ML'] > 0)*(oddsv2['MOV'] < 0)*-100 # Underdog Loser
+                     )
+
+#  -- Game Number --
+oddsv2 = oddsv2.sort_values('Date', ascending=True)
+oddsv2['G'] = oddsv2.groupby(['Team','Season'])['Date'].rank(method = 'first',ascending=True)
+oddsv2['OppG'] = oddsv2.groupby(['Opp','Season'])['Date'].rank(method = 'first',ascending=True)
+
+# -- Previous Game Stats --
+# Initialize
+pg_key_cols = ['Team','Season','G']
+pg_stats_cols = ['MOV','Spread','ATSMargin','Location']
+opp_pg_key_cols = ['Opp','Season','OppG']
+### Create Reference Dictionary
+previous_game_ref = oddsv2[pg_key_cols + pg_stats_cols].copy()
+### Adjust Column Names
+pg_new_cols = ['pg' +  x if x not in pg_key_cols else x for x in previous_game_ref.columns]
+previous_game_ref.columns = pg_new_cols
+### Modify G column for combining
+previous_game_ref['G'] = previous_game_ref['G'] + 1
+### Create Opp DF
+opp_previous_game_ref = previous_game_ref.copy()
+opp_previous_game_ref.columns = opp_pg_keys_cols + ['Opp' + y for y in pg_stats_cols]
+# Merge
+temp = pd.merge(oddsv2, previous_game_ref, on=pg_key_cols, how='left')
+oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
+
+
+
+
+
+
+
+
 
 
