@@ -61,21 +61,31 @@ credentials = service_account.Credentials.from_service_account_info(
 ggl_drive = build('drive', 'v3', credentials=credentials)
 
 # -- Read Files -- #
-# Previous Odds
+# Creation Files
 odds = pd.read_csv('https://docs.google.com/uc?id=1U229Lq93X4Cd9ovtYyVD7fQ3G4ragqwQ')
 rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vOF46aunn')
+conference_reference = pd.read_csv('https://docs.google.com/uc?id=1ewDetzYCoyS5hnVBMjXaiTSM_fLop3wy')[['Team','Conf','Season']]
+# Team Help
+temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
+
+### Create from files
+opp_conference_reference = conference_reference.rename({'Team':'Opp',
+                                                       'Conf':'OppConf'})
+
 ### Pre-Processing
 rankings['Date'] = pd.to_datetime(rankings['Date'])
 odds['Date'] = pd.to_datetime(odds['Date'])
 odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
 odds = odds.sort_values('Date', ascending=True)
-# Team Help
-temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
-# Create from files
+
 
 ##################################################
 ###### Processing ################################
 ##################################################
+
+# -- Combine Odds with Conference -- #
+temp = pd.merge(odds, conference_reference, how='left', on=['Team','Season'])
+odds = pd.merge(temp, opp_conference_reference, how='left', on=['Opp','Season'])
 
 # -- Combine Odds with Rankings -- #
 # List of Dates
