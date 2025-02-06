@@ -78,10 +78,12 @@ odds['Date'] = pd.to_datetime(odds['Date'])
 odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
 odds = odds.sort_values('Date', ascending=True)
 
-
 ##################################################
 ###### Processing ################################
 ##################################################
+
+print('odds columns:',odds.columns)
+print('opp_conference_reference columns:',opp_conference_reference.columns)
 
 # -- Combine Odds with Conference -- #
 temp = pd.merge(odds, conference_reference, how='left', on=['Team','Season'])
