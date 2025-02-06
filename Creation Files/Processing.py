@@ -335,12 +335,20 @@ oddsv8['CGWR'] = oddsv8.groupby(['Season','Team'])['tempCGWR'].cumsum() - oddsv8
 # Drop Temp
 oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 
+##################################################
+###### End Processing ############################
+##################################################
 
+# Test File Creation #
+creation_name = 'Processed Stats 2021-2024'
+oddsv9.to_csv('saved_file.csv',index=False)
 
-
-
-
-
-
-
-
+# Upload File
+returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
+file_metadata = {'name': creation_name+'.csv'}
+media = MediaFileUpload('saved_file.csv',
+                        mimetype='text/csv')
+file = ggl_drive.files().update(fileId='17p3ZBuoFeYSj4E64pRuLUJBL7LpSvfin',
+                                body=file_metadata, 
+                                media_body=media,
+                              fields=returned_fields).execute()
