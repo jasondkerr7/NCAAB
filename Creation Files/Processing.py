@@ -150,10 +150,8 @@ temp = pd.merge(oddsv2, previous_game_ref, on=pg_key_cols, how='left')
 oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
 
 # -- Add Conferences --
-
-# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-# Missing
-# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+temp = pd.merge(oddsv3, conference_reference, how='left', on=['Team','Season'])
+oddsv3 = pd.merge(temp, opp_conference_reference, how='left', on=['Opp','Season'])
 
 # -- Win/Loss & ATS --
 # Basic Result Dummy's
