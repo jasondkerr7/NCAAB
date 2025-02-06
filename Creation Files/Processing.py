@@ -149,10 +149,6 @@ opp_previous_game_ref.columns = opp_pg_keys_cols + ['Opp' + y for y in pg_stats_
 temp = pd.merge(oddsv2, previous_game_ref, on=pg_key_cols, how='left')
 oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
 
-# -- Add Conferences --
-temp = pd.merge(oddsv3, conference_reference, how='left', on=['Team','Season'])
-oddsv3 = pd.merge(temp, opp_conference_reference, how='left', on=['Opp','Season'])
-
 # -- Win/Loss & ATS --
 # Basic Result Dummy's
 oddsv3['ResultDummy'] = (oddsv3['MOV'] > 0)*1
