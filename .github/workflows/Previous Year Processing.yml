@@ -1,5 +1,5 @@
 # This is a basic workflow to help you get started with Actions
-name: NCAAB Creation (Previous Years Odds and Rankings)
+name: NCAAB Processing (Previous Years)
 
 # Controls when the workflow will run
 on: 
