@@ -62,14 +62,14 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 
 # -- Read Files -- #
 # Creation Files
-odds = pd.read_csv('https://docs.google.com/uc?id=1U229Lq93X4Cd9ovtYyVD7fQ3G4ragqwQ').rename({'Opponent':'Opp'})
+odds = pd.read_csv('https://docs.google.com/uc?id=1U229Lq93X4Cd9ovtYyVD7fQ3G4ragqwQ').rename(columns={'Opponent':'Opp'})
 rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vOF46aunn')
 conference_reference = pd.read_csv('https://docs.google.com/uc?id=1ewDetzYCoyS5hnVBMjXaiTSM_fLop3wy')[['Team','Conf','Season']]
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
 
 ### Create from files
-opp_conference_reference = conference_reference.rename({'Team':'Opp',
+opp_conference_reference = conference_reference.rename(columns={'Team':'Opp',
                                                        'Conf':'OppConf'})
 
 ### Pre-Processing
