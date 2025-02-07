@@ -100,7 +100,7 @@ for d in every_date:
 
 # Duplicate Date column and then map it using the dictionary
 odds['DateRef'] = odds['Date']
-odds['DateRef'].replace(date_ref_dict,inplace=True)
+odds['DateRef'] = odds['DateRef'].replace(date_ref_dict)
 
 # Create Reference DFs
 rankings_ref = rankings[['Date','Team','Rank']].rename(columns={'Date':'DateRef'}).copy()
@@ -182,7 +182,7 @@ oddsv3['tempConfATSL'] = (oddsv3['Conf'] == oddsv3['OppConf'])*(oddsv3['SpreadRe
 oddsv3['tempConfATSP'] = (oddsv3['Conf'] == oddsv3['OppConf'])*(oddsv3['SpreadResultDummy'] == 'Push')*1
 
 #### Sort Values ####
-oddsv3.sort_values('Date',inplace=True)
+oddsv3 = oddsv3.sort_values('Date')
 
 # Cumulatively Sum the Temporary Variables
 ## The cumulative sum will include the current game so that must be subtracted
@@ -191,7 +191,7 @@ for sitch in ['','Home','Away','Conf']:
     for stat in ['W','L','ATSW','ATSL','ATSP']:
         oddsv3[sitch+stat] = oddsv3.groupby(['Season','Team'])['temp'+sitch+stat].cumsum() -\
                                 oddsv3['temp'+sitch+stat]
-        oddsv3.drop('temp'+sitch+stat, axis=1, inplace=True)
+        oddsv3 = oddsv3.drop('temp'+sitch+stat, axis=1)
 
 # Add Result Percentages        
 oddsv3['WLpct'] = oddsv3['W']/(oddsv3['W'] + oddsv3['L'])
@@ -211,7 +211,7 @@ record_stats = list(oddsv3.columns[list(oddsv3.columns).index('W'):])
 opprecords = oddsv3[desc+record_stats].copy()
 # Rename to Opponent Stats
 temp = dict(zip(['Team','G']+record_stats,['Opp','OppG']+['Opp' + col for col in record_stats]))
-opprecords.rename(columns=temp, inplace=True)
+opprecords = opprecords.rename(columns=temp)
 # Combine
 oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
 
@@ -284,7 +284,7 @@ for i in range(0,len(oddsv5)):
 oddsv5['SOSW'] = wins_list
 oddsv5['SOSL'] = losses_list
 oddsv5['SOS'] = (oddsv5['SOSW']-oddsv5['L'])/(oddsv5['SOSW']+oddsv5['SOSL']-oddsv5['W']-oddsv5['L'])
-oddsv5.drop(['SOSW','SOSL'], axis=1, inplace=True)
+oddsv5 = oddsv5.drop(['SOSW','SOSL'], axis=1)
 
 # Opponent SOS
 oppsosref = oddsv5[['Date','Team','SOS']].copy().rename(columns={'Team':'Opp',
@@ -321,7 +321,7 @@ oddsv8['VOPsum'] = oddsv8['VOP'] + oddsv8['OppVOP']
 
 # -- Close Game Weighted Record -- 
 # Sort Values
-oddsv8.sort_values('Date',inplace=True)
+oddsv8 = oddsv8.sort_values('Date')
 
 # Results weighted by Closeness of Games to determine clutch value
 oddsv8['tempCGWR'] = np.maximum(0.1, (1-((abs(oddsv8['MOV'])/100)**3)*3000))*(oddsv8['MOV']/oddsv8['MOV'].abs())
