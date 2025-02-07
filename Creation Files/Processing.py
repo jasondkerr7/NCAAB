@@ -110,7 +110,7 @@ opp_rankings_ref = rankings_ref.rename(columns={'Team':'Opp',
 # Merge
 temp = pd.merge(odds, rankings_ref, on=['Team','DateRef'], how='left')
 oddsv2 = pd.merge(temp, opp_rankings_ref, on=['Opp','DateRef'], how='left')
-cy_ncaabor = cy_ncaabor.drop_duplicates().reset_index(drop=True)
+oddsv2 = oddsv2.drop_duplicates().reset_index(drop=True)
 
 # -------------------------- #
 # -- Create New Variables -- #
