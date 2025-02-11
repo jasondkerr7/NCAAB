@@ -150,3 +150,71 @@ opp_previous_game_ref.columns = opp_pg_key_cols + ['Opp' + y for y in pg_stats_c
 # Merge
 temp = pd.merge(oddsv2, previous_game_ref, on=pg_key_cols, how='left')
 oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
+
+print('Win/Loss & ATS')
+# -- Win/Loss & ATS --
+# Basic Result Dummy's
+oddsv3['ResultDummy'] = (oddsv3['MOV'] > 0)*1
+oddsv3['SpreadResultDummy'] = np.where(oddsv3['ATSMargin'] == 0, 'Push',
+                                         np.where(oddsv3['ATSMargin'] > 0, 'Cover', 'Loss'))
+
+# Establish Temporary Variables
+## These variables cateogrize the individual result in a game
+### Full
+oddsv3['tempW'] = (oddsv3['ResultDummy'] == 1)*1
+oddsv3['tempL'] = (oddsv3['ResultDummy'] == 0)*1
+oddsv3['tempATSW'] = (oddsv3['SpreadResultDummy'] == 'Cover')*1
+oddsv3['tempATSL'] = (oddsv3['SpreadResultDummy'] == 'Loss')*1
+oddsv3['tempATSP'] = (oddsv3['SpreadResultDummy'] == 'Push')*1
+### Home
+oddsv3['tempHomeW'] = (oddsv3['Location'] == 'Home')*(oddsv3['ResultDummy'] == 1)*1
+oddsv3['tempHomeL'] = (oddsv3['Location'] == 'Home')*(oddsv3['ResultDummy'] == 0)*1
+oddsv3['tempHomeATSW'] = (oddsv3['Location'] == 'Home')*(oddsv3['SpreadResultDummy'] == 'Cover')*1
+oddsv3['tempHomeATSL'] = (oddsv3['Location'] == 'Home')*(oddsv3['SpreadResultDummy'] == 'Loss')*1
+oddsv3['tempHomeATSP'] = (oddsv3['Location'] == 'Home')*(oddsv3['SpreadResultDummy'] == 'Push')*1
+### Away
+oddsv3['tempAwayW'] = (oddsv3['Location'] == 'Away')*(oddsv3['ResultDummy'] == 1)*1
+oddsv3['tempAwayL'] = (oddsv3['Location'] == 'Away')*(oddsv3['ResultDummy'] == 0)*1
+oddsv3['tempAwayATSW'] = (oddsv3['Location'] == 'Away')*(oddsv3['SpreadResultDummy'] == 'Cover')*1
+oddsv3['tempAwayATSL'] = (oddsv3['Location'] == 'Away')*(oddsv3['SpreadResultDummy'] == 'Loss')*1
+oddsv3['tempAwayATSP'] = (oddsv3['Location'] == 'Away')*(oddsv3['SpreadResultDummy'] == 'Push')*1
+### Conf
+oddsv3['tempConfW'] = (oddsv3['Conf'] == oddsv3['OppConf'])*(oddsv3['ResultDummy'] == 1)*1
+oddsv3['tempConfL'] = (oddsv3['Conf'] == oddsv3['OppConf'])*(oddsv3['ResultDummy'] == 0)*1
+oddsv3['tempConfATSW'] = (oddsv3['Conf'] == oddsv3['OppConf'])*(oddsv3['SpreadResultDummy'] == 'Cover')*1
+oddsv3['tempConfATSL'] = (oddsv3['Conf'] == oddsv3['OppConf'])*(oddsv3['SpreadResultDummy'] == 'Loss')*1
+oddsv3['tempConfATSP'] = (oddsv3['Conf'] == oddsv3['OppConf'])*(oddsv3['SpreadResultDummy'] == 'Push')*1
+
+#### Sort Values ####
+oddsv3 = oddsv3.sort_values('Date')
+
+# Cumulatively Sum the Temporary Variables
+## The cumulative sum will include the current game so that must be subtracted
+### Loop
+for sitch in ['','Home','Away','Conf']:
+    for stat in ['W','L','ATSW','ATSL','ATSP']:
+        oddsv3[sitch+stat] = oddsv3.groupby(['Season','Team'])['temp'+sitch+stat].cumsum() -\
+                                oddsv3['temp'+sitch+stat]
+        oddsv3 = oddsv3.drop('temp'+sitch+stat, axis=1)
+
+# Add Result Percentages        
+oddsv3['WLpct'] = oddsv3['W']/(oddsv3['W'] + oddsv3['L'])
+oddsv3['HomeWLpct'] = oddsv3['HomeW']/(oddsv3['HomeW'] + oddsv3['HomeL'])
+oddsv3['AwayWLpct'] = oddsv3['AwayW']/(oddsv3['AwayW'] + oddsv3['AwayL'])
+oddsv3['ConfWLpct'] = oddsv3['ConfW']/(oddsv3['ConfW'] + oddsv3['ConfL'])
+oddsv3['ATSpct'] = oddsv3['ATSW']/(oddsv3['ATSW'] + oddsv3['ATSL'])
+oddsv3['HomeATSpct'] = oddsv3['HomeATSW']/(oddsv3['HomeATSW'] + oddsv3['HomeATSL'])
+oddsv3['AwayATSpct'] = oddsv3['AwayATSW']/(oddsv3['AwayATSW'] + oddsv3['AwayATSL'])
+oddsv3['ConfATSpct'] = oddsv3['ConfATSW']/(oddsv3['ConfATSW'] + oddsv3['ConfATSL'])
+oddsv3['ConfGame'] = (oddsv3['Conf'] == oddsv3['OppConf'])*1
+
+# Generate and Merge Opponent Records
+# Season, Team, G, and record columns
+desc = ['Season','Team','G']
+record_stats = list(oddsv3.columns[list(oddsv3.columns).index('W'):])
+opprecords = oddsv3[desc+record_stats].copy()
+# Rename to Opponent Stats
+temp = dict(zip(['Team','G']+record_stats,['Opp','OppG']+['Opp' + col for col in record_stats]))
+opprecords = opprecords.rename(columns=temp)
+# Combine
+oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
