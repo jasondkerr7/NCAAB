@@ -116,6 +116,7 @@ oddsv2 = oddsv2.drop_duplicates().reset_index(drop=True)
 # -- Create New Variables -- #
 # -------------------------- #
 
+print('Profits')
 # -- Profits --
 oddsv2['ATSProfit'] = (oddsv2['ATSMargin'] > 0)*100 + (oddsv2['ATSMargin'] < 0)*-110
 oddsv2['MLProfit'] = ((oddsv2['ML'] < 0)*(oddsv2['MOV'] > 0)*100 + # Favorite Winner
@@ -124,11 +125,13 @@ oddsv2['MLProfit'] = ((oddsv2['ML'] < 0)*(oddsv2['MOV'] > 0)*100 + # Favorite Wi
                       (oddsv2['ML'] > 0)*(oddsv2['MOV'] < 0)*-100 # Underdog Loser
                      )
 
+print('Game Number')
 #  -- Game Number --
 oddsv2 = oddsv2.sort_values('Date', ascending=True)
 oddsv2['G'] = oddsv2.groupby(['Team','Season'])['Date'].rank(method = 'first',ascending=True)
 oddsv2['OppG'] = oddsv2.groupby(['Opp','Season'])['Date'].rank(method = 'first',ascending=True)
 
+print('Previous Game Stats')
 # -- Previous Game Stats --
 # Initialize
 pg_key_cols = ['Team','Season','G']
@@ -148,6 +151,7 @@ opp_previous_game_ref.columns = opp_pg_key_cols + ['Opp' + y for y in pg_stats_c
 temp = pd.merge(oddsv2, previous_game_ref, on=pg_key_cols, how='left')
 oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
 
+print('Win/Loss & ATS')
 # -- Win/Loss & ATS --
 # Basic Result Dummy's
 oddsv3['ResultDummy'] = (oddsv3['MOV'] > 0)*1
@@ -215,6 +219,7 @@ opprecords = opprecords.rename(columns=temp)
 # Combine
 oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
 
+print('Rematch Stats')
 # -- Rematch Stats --
 # Create game ID for Rematch identification
 oddsv4['UniqueGames'] = oddsv4.groupby(['Team','Opp','Season']).G.rank(method='first',ascending=True)
@@ -226,6 +231,7 @@ temp = temp[['Team','Opp','Season','UniqueGames','Location','MOV','Spread','ATSM
 temp.columns = ['Team','Opp','Season','UniqueGames','RematchLocation','RematchMOV','RematchSpread','RematchATSMargin']
 oddsv5 = pd.merge(oddsv4, temp, on=['Team','Opp','Season','UniqueGames'], how='left')
 
+print('SOS')
 # -- Strength of Schedule --
 ## $ Watch for D3 Teams (Maybe fix by only working with Teams where Conf != np.nan?)
 # Initialize
@@ -291,6 +297,7 @@ oppsosref = oddsv5[['Date','Team','SOS']].copy().rename(columns={'Team':'Opp',
                                                                     'SOS':'OppSOS'})
 oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','Opp'], how='left')
 
+print('VOP')
 # -- Variance of Play --
 ### Variance of Play defined as Spread in Wins minus Spread in Losses ###
 # Temp variables
@@ -319,6 +326,7 @@ oppvopref = oddsv7[['Date','Team','VOPW','VOPL','VOP']].copy().rename(columns={'
 oddsv8 = pd.merge(oddsv7, oppvopref, on=['Date','Opp'], how='left')
 oddsv8['VOPsum'] = oddsv8['VOP'] + oddsv8['OppVOP']
 
+print('CGWR')
 # -- Close Game Weighted Record -- 
 # Sort Values
 oddsv8 = oddsv8.sort_values('Date')
@@ -334,6 +342,7 @@ oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 ###### End Processing ############################
 ##################################################
 
+print('File Creation')
 # Test File Creation #
 creation_name = 'Processed Stats 2021-2024'
 oddsv9.to_csv('saved_file.csv',index=False)
