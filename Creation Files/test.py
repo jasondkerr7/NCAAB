@@ -44,6 +44,7 @@ import urllib
 import gzip
 import json
 import lxml
+import sys
 
 # -- GOOGLE CONNECTION -- #
 # Prepare auth json for google connection
@@ -59,39 +60,93 @@ credentials = service_account.Credentials.from_service_account_info(
                               scopes=scope)
 ggl_drive = build('drive', 'v3', credentials=credentials)
 
-# -- Odds -- #
-# Initiate
-start_date = '2021-06-01'
-end_date = '2024-06-01'
+# -- Read Files -- #
+# Creation Files
+odds = pd.read_csv('https://docs.google.com/uc?id=1U229Lq93X4Cd9ovtYyVD7fQ3G4ragqwQ').rename(columns={'Opponent':'Opp'})
+rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vOF46aunn')
+conference_reference = pd.read_csv('https://docs.google.com/uc?id=1ewDetzYCoyS5hnVBMjXaiTSM_fLop3wy')[['Team','Conf','Season']]
+# Team Help
+temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
 
-# Setup Connection
-service = Service()
-options = webdriver.ChromeOptions()
-options.add_argument("--headless=new")
-user_agent = 'Chrome/60.0.3112.50'
-options.add_argument(f'user-agent={user_agent}')
-driver = webdriver.Chrome(service=service, options=options)
+### Create from files
+opp_conference_reference = conference_reference.rename(columns={'Team':'Opp',
+                                                       'Conf':'OppConf'})
 
-# Access Website
-driver.get('https://betiq.teamrankings.com/college-basketball/betting-trends/custom-trend-tool')
-driver.execute_script("document.body.style.zoom='80%'")
-time.sleep(2)
-y = driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').location['y']-150
-driver.execute_script("window.scrollTo(0, "+str(y)+")")
-time.sleep(2)
-driver.get_screenshot_as_file("screenshot.png")
-time.sleep(3)
-try:
-  driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
-  print('It Worzed!!')
-except Exception as e:
-  print('Herez the error:',e)
+### Pre-Processing
+rankings['Date'] = pd.to_datetime(rankings['Date'])
+odds['Date'] = pd.to_datetime(odds['Date'])
+odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
+odds = odds.sort_values('Date', ascending=True)
 
-# Upload File
-returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
-file_metadata = {'name': 'screenshot.png',
-                'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
-media = MediaFileUpload('screenshot.png',
-                        mimetype='image/png')
-file = ggl_drive.files().create(body=file_metadata, media_body=media,
-                              fields=returned_fields).execute()
+##################################################
+###### Processing ################################
+##################################################
+
+# -- Combine Odds with Conference -- #
+temp = pd.merge(odds, conference_reference, how='left', on=['Team','Season'])
+odds = pd.merge(temp, opp_conference_reference, how='left', on=['Opp','Season'])
+
+# -- Combine Odds with Rankings -- #
+# List of Dates
+rnkeys = pd.unique(rankings['Date'])
+
+# Create Dictionary to turn Dates into Dates of AP Rankings
+### Initialize
+date_ref_dict = {}
+every_date = pd.unique(odds['Date'])
+for d in every_date:
+    daat = pd.to_datetime(d)
+    date_ref_dict[d] = min(rnkeys, key=lambda x: (x>daat, abs(x-daat)))
+
+# Duplicate Date column and then map it using the dictionary
+odds['DateRef'] = odds['Date']
+odds['DateRef'] = odds['DateRef'].replace(date_ref_dict)
+
+# Create Reference DFs
+rankings_ref = rankings[['Date','Team','Rank']].rename(columns={'Date':'DateRef'}).copy()
+opp_rankings_ref = rankings_ref.rename(columns={'Team':'Opp',
+                                                'Rank':'OppRank'})
+
+# Merge
+temp = pd.merge(odds, rankings_ref, on=['Team','DateRef'], how='left')
+oddsv2 = pd.merge(temp, opp_rankings_ref, on=['Opp','DateRef'], how='left')
+oddsv2 = oddsv2.drop_duplicates().reset_index(drop=True)
+
+# -------------------------- #
+# -- Create New Variables -- #
+# -------------------------- #
+
+print('Profits')
+# -- Profits --
+oddsv2['ATSProfit'] = (oddsv2['ATSMargin'] > 0)*100 + (oddsv2['ATSMargin'] < 0)*-110
+oddsv2['MLProfit'] = ((oddsv2['ML'] < 0)*(oddsv2['MOV'] > 0)*100 + # Favorite Winner
+                      (oddsv2['ML'] > 0)*(oddsv2['MOV'] > 0)*(oddsv2['ML']) + # Underdog Winner
+                      (oddsv2['ML'] < 0)*(oddsv2['MOV'] < 0)*(oddsv2['ML']) + # Favorite Loser
+                      (oddsv2['ML'] > 0)*(oddsv2['MOV'] < 0)*-100 # Underdog Loser
+                     )
+
+print('Game Number')
+#  -- Game Number --
+oddsv2 = oddsv2.sort_values('Date', ascending=True)
+oddsv2['G'] = oddsv2.groupby(['Team','Season'])['Date'].rank(method = 'first',ascending=True)
+oddsv2['OppG'] = oddsv2.groupby(['Opp','Season'])['Date'].rank(method = 'first',ascending=True)
+
+print('Previous Game Stats')
+# -- Previous Game Stats --
+# Initialize
+pg_key_cols = ['Team','Season','G']
+pg_stats_cols = ['MOV','Spread','ATSMargin','Location']
+opp_pg_key_cols = ['Opp','Season','OppG']
+### Create Reference Dictionary
+previous_game_ref = oddsv2[pg_key_cols + pg_stats_cols].copy()
+### Adjust Column Names
+pg_new_cols = ['pg' +  x if x not in pg_key_cols else x for x in previous_game_ref.columns]
+previous_game_ref.columns = pg_new_cols
+### Modify G column for combining
+previous_game_ref['G'] = previous_game_ref['G'] + 1
+### Create Opp DF
+opp_previous_game_ref = previous_game_ref.copy()
+opp_previous_game_ref.columns = opp_pg_key_cols + ['Opp' + y for y in pg_stats_cols]
+# Merge
+temp = pd.merge(oddsv2, previous_game_ref, on=pg_key_cols, how='left')
+oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
