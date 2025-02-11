@@ -220,4 +220,82 @@ opprecords = opprecords.rename(columns=temp)
 # Combine
 oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
 
+print('Rematch Stats')
+# -- Rematch Stats --
+# Create game ID for Rematch identification
+oddsv4['UniqueGames'] = oddsv4.groupby(['Team','Opp','Season']).G.rank(method='first',ascending=True)
+
+# Create df for merge
+temp = oddsv4.copy()
+temp['UniqueGames'] = temp['UniqueGames'] + 1
+temp = temp[['Team','Opp','Season','UniqueGames','Location','MOV','Spread','ATSMargin']]
+temp.columns = ['Team','Opp','Season','UniqueGames','RematchLocation','RematchMOV','RematchSpread','RematchATSMargin']
+oddsv5 = pd.merge(oddsv4, temp, on=['Team','Opp','Season','UniqueGames'], how='left')
+
+print('SOS')
+# -- Strength of Schedule --
+## $ Watch for D3 Teams (Maybe fix by only working with Teams where Conf != np.nan?)
+# Initialize
+rec_dict = {}
+sched_dict = {}
+wins_list = []
+losses_list = []
+
+# Dictionary of Teams for Schedule
+all_scheds = pd.DataFrame(oddsv5.groupby(['Season','Team'])['Opp'].apply(list)).reset_index()
+teams_of_all_scheds = pd.unique(all_scheds.Team)
+for tm in teams_of_all_scheds:
+    sched_dict[tm] = {}
+## Fill Dict with Team Schedules for each Season
+for i in range(0, len(all_scheds)):
+    sched_dict[all_scheds.loc[i,'Team']][all_scheds.loc[i,'Season']] = all_scheds.loc[i,'Opp']
+
+# Initialize Dicts of Teams for Records
+all_teams = pd.unique(oddsv5['Team'])
+for tm in all_teams:
+    rec_dict[tm] = {}
+## Initialize Dicts of all Seasons for each Team for Records
+unique_team_seasons = oddsv5[['Team','Season']].copy().drop_duplicates().reset_index(drop=True)
+for i in range(0,len(unique_team_seasons)):
+    rec_dict[unique_team_seasons.loc[i,'Team']][unique_team_seasons.loc[i,'Season']] = {}
+### Fill Dict with Team Records for each Date
+for i in range(0,len(oddsv5)):
+    rec_dict[oddsv5.loc[i,'Team']][oddsv5.loc[i,'Season']][oddsv5.loc[i,'Date']] = {'W':oddsv5.loc[i,'W']+oddsv5.loc[i,'ResultDummy'],
+                                                                                     'L':oddsv5.loc[i,'L']+(oddsv5.loc[i,'ResultDummy']==0)*1}
+#### Create 0-0 July 4th Record for each team that will match with the start of the season
+for tm in rec_dict.keys():
+    for szn in rec_dict[tm].keys():
+        rec_dict[tm][szn][pd.Timestamp(str(szn)+'-7-04 00:00:00')] = {'W':0,
+                                                                        'L':0}
+
+# Loop through games to create SOS
+for i in range(0,len(oddsv5)):
+    wins = 0
+    losses = 0
+    g = oddsv5.loc[i,'G']
+    team = oddsv5.loc[i,'Team']
+    szn = oddsv5.loc[i,'Season']
+    daat = oddsv5.loc[i,'Date']
+    sched = sched_dict[team][szn][:(int(g)-1)]
+    for t in [x for x in sched if x == x]:
+        try:
+            datefound = min(rec_dict[t][szn].keys(), key=lambda x: (x>daat, abs(x-daat)))
+            wins += rec_dict[t][szn][datefound]['W']
+            losses += rec_dict[t][szn][datefound]['L']
+        except:
+            continue
+    wins_list.append(wins)
+    losses_list.append(losses)
+
+# Finalize the SOS Variable into the oddsv5 dataset
+oddsv5['SOSW'] = wins_list
+oddsv5['SOSL'] = losses_list
+oddsv5['SOS'] = (oddsv5['SOSW']-oddsv5['L'])/(oddsv5['SOSW']+oddsv5['SOSL']-oddsv5['W']-oddsv5['L'])
+oddsv5 = oddsv5.drop(['SOSW','SOSL'], axis=1)
+
+# Opponent SOS
+oppsosref = oddsv5[['Date','Team','SOS']].copy().rename(columns={'Team':'Opp',
+                                                                    'SOS':'OppSOS'})
+oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','Opp'], how='left')
+
 print("Ended with RAM Usage of -- ",psutil.virtual_memory().percent)
