@@ -10,6 +10,7 @@ from googleapiclient.http import MediaIoBaseDownload
 from googleapiclient.http import MediaIoBaseUpload
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
+import psutil
 import smtplib
 from bs4.element import Comment
 import re
@@ -218,3 +219,5 @@ temp = dict(zip(['Team','G']+record_stats,['Opp','OppG']+['Opp' + col for col in
 opprecords = opprecords.rename(columns=temp)
 # Combine
 oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
+
+print("Ended with RAM Usage of -- ",psutil.virtual_memory().percent)
