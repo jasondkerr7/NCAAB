@@ -134,7 +134,7 @@ for ky in rankings.keys():
         allranks = pd.concat([allranks,temp],axis=0).reset_index(drop=True)
     counter += 1
 allranks['Team'].replace(teamhelp, inplace=True)
-allranks['Date'] = pd.to_datetime(allranks['Team']).dt.strftime('%m/%d/%y')
+allranks['Date'] = pd.to_datetime(allranks['Date']).dt.strftime('%m/%d/%y')
 allranks = allranks[['Rank','Team','Conference','Record','Points','Coaches','Date']].copy()
 
 ##################################################
