@@ -113,12 +113,17 @@ temp = pd.merge(odds, rankings_ref, on=['Team','DateRef'], how='left')
 oddsv2 = pd.merge(temp, opp_rankings_ref, on=['Opp','DateRef'], how='left')
 oddsv2 = oddsv2.drop_duplicates().reset_index(drop=True)
 
+oddsv2['ResultDummy'] = (oddsv2['MOV'] > 0)*1
+oddsv2['SpreadResultDummy'] = np.where(oddsv2['ATSMargin'] == 0, 'Push',
+                                         np.where(oddsv2['ATSMargin'] > 0, 'Cover', 'Loss'))
+
 # -------------------------- #
 # -- Create New Variables -- #
 # -------------------------- #
 print("Entered VOP with RAM Usage of -- ",psutil.virtual_memory().percent)
 # -- Variance of Play --
 ### Variance of Play defined as Spread in Wins minus Spread in Losses ###
+
 # Temp variables
 oddsv2['tempSpreadInLoss'] = (oddsv2['ResultDummy'] == 0)*(oddsv2['Spread'])
 oddsv2['tempSpreadInWin'] = (oddsv2['ResultDummy'] > 0)*(oddsv2['Spread'])
