@@ -47,7 +47,8 @@ import json
 import lxml
 import sys
 
-print("Started with CPU Percentage Usage of --", psutil.virtual_memory().available * 100 / psutil.virtual_memory().total)
+print("Started with CPU Usage of -- ",psutil.cpu_percent())
+print("Ended with RAM Usage of -- ",psutil.virtual_memory().percent)
 
 # -- GOOGLE CONNECTION -- #
 # Prepare auth json for google connection
@@ -85,7 +86,8 @@ odds = odds.sort_values('Date', ascending=True)
 ###### Processing ################################
 ##################################################
 
-print("CPU Percentage Usage @ processing", psutil.virtual_memory().available * 100 / psutil.virtual_memory().total)
+print("CPU Usage @ processing --",psutil.cpu_percent())
+print("RAM Usage @ processing --",psutil.virtual_memory().percent)
 
 # -- Combine Odds with Conference -- #
 temp = pd.merge(odds, conference_reference, how='left', on=['Team','Season'])
@@ -121,7 +123,8 @@ oddsv2 = oddsv2.drop_duplicates().reset_index(drop=True)
 # -- Create New Variables -- #
 # -------------------------- #
 
-print("CPU Percentage Usage pre-processing", psutil.virtual_memory().available * 100 / psutil.virtual_memory().total)
+print("CPU Usage pre profits --",psutil.cpu_percent())
+print("RAM Usage pre profits --",psutil.virtual_memory().percent)
 
 print('Profits')
 # -- Profits --
@@ -138,9 +141,11 @@ oddsv2 = oddsv2.sort_values('Date', ascending=True)
 oddsv2['G'] = oddsv2.groupby(['Team','Season'])['Date'].rank(method = 'first',ascending=True)
 oddsv2['OppG'] = oddsv2.groupby(['Opp','Season'])['Date'].rank(method = 'first',ascending=True)
 # Reset Memory
-print("CPU Percentage before deleting 'odds'", psutil.virtual_memory().available * 100 / psutil.virtual_memory().total)
+print("CPU Usage BEFORE deleting odds --",psutil.cpu_percent())
+print("RAM Usage BEFORE deleting odds --",psutil.virtual_memory().percent)
 del odds
-print("CPU Percentage before aftering 'odds'", psutil.virtual_memory().available * 100 / psutil.virtual_memory().total)
+print("CPU Usage AFTER deleting odds --",psutil.cpu_percent())
+print("RAM Usage AFTER deleting odds --",psutil.virtual_memory().percent)
 
 print('Previous Game Stats')
 # -- Previous Game Stats --
@@ -317,7 +322,5 @@ oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','Opp'], how='left')
 del oddsv5
 
 print("Ended with RAM Usage of -- ",psutil.virtual_memory().percent)
-print("Ended with CPU Usage of --", psutil.virtual_memory().available)
-print("Ended with CPU Available of --", psutil.virtual_memory().total/100)
-print("Ended with CPU Percentage Usage of --", psutil.virtual_memory().available * 100 / psutil.virtual_memory().total)
+print("Ended with CPU Usage of --",psutil.cpu_percent())
 
