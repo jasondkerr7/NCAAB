@@ -306,3 +306,7 @@ oppsosref = oddsv5[['Date','Team','SOS']].copy().rename(columns={'Team':'Opp',
 oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','Opp'], how='left')
 # Reset Memory
 del oddsv5
+
+print("Ended with RAM Usage of -- ",psutil.virtual_memory().percent)
+print("Ended with CPU Usage of --", psutil.virtual_memory().available * 100 / psutil.virtual_memory().total)
+
