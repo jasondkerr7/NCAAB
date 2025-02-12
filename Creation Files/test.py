@@ -2,8 +2,6 @@
 ###### Setup #####################################
 ##################################################
 
-print("Started with CPU Percentage Usage of --", psutil.virtual_memory().available * 100 / psutil.virtual_memory().total)
-
 ## -- Import Required Packages -- ##
 
 import psutil
@@ -48,6 +46,8 @@ import gzip
 import json
 import lxml
 import sys
+
+print("Started with CPU Percentage Usage of --", psutil.virtual_memory().available * 100 / psutil.virtual_memory().total)
 
 # -- GOOGLE CONNECTION -- #
 # Prepare auth json for google connection
