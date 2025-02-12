@@ -130,6 +130,8 @@ print('Game Number')
 oddsv2 = oddsv2.sort_values('Date', ascending=True)
 oddsv2['G'] = oddsv2.groupby(['Team','Season'])['Date'].rank(method = 'first',ascending=True)
 oddsv2['OppG'] = oddsv2.groupby(['Opp','Season'])['Date'].rank(method = 'first',ascending=True)
+# Reset Memory
+del odds
 
 print('Previous Game Stats')
 # -- Previous Game Stats --
@@ -150,6 +152,8 @@ opp_previous_game_ref.columns = opp_pg_key_cols + ['Opp' + y for y in pg_stats_c
 # Merge
 temp = pd.merge(oddsv2, previous_game_ref, on=pg_key_cols, how='left')
 oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
+# Reset Memory
+del oddsv2
 
 print('Win/Loss & ATS')
 # -- Win/Loss & ATS --
@@ -218,6 +222,8 @@ temp = dict(zip(['Team','G']+record_stats,['Opp','OppG']+['Opp' + col for col in
 opprecords = opprecords.rename(columns=temp)
 # Combine
 oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
+# Reset Memory
+del oddsv3
 
 print('Rematch Stats')
 # -- Rematch Stats --
@@ -230,6 +236,8 @@ temp['UniqueGames'] = temp['UniqueGames'] + 1
 temp = temp[['Team','Opp','Season','UniqueGames','Location','MOV','Spread','ATSMargin']]
 temp.columns = ['Team','Opp','Season','UniqueGames','RematchLocation','RematchMOV','RematchSpread','RematchATSMargin']
 oddsv5 = pd.merge(oddsv4, temp, on=['Team','Opp','Season','UniqueGames'], how='left')
+# Reset Memory
+del oddsv4
 
 print('SOS')
 # -- Strength of Schedule --
@@ -296,6 +304,8 @@ oddsv5 = oddsv5.drop(['SOSW','SOSL'], axis=1)
 oppsosref = oddsv5[['Date','Team','SOS']].copy().rename(columns={'Team':'Opp',
                                                                     'SOS':'OppSOS'})
 oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','Opp'], how='left')
+# Reset Memory
+del oddsv5
 
 print('VOP')
 # -- Variance of Play --
@@ -317,6 +327,8 @@ for var in ['VOPW','VOPL','VOP']:
     oddsv6[var] = (oddsv6[var]-mn)/std
 # Remove Temp variables
 oddsv7 = oddsv6.drop(['tempSpreadInLoss','tempSpreadInWin'],axis=1)
+# Reset Memory
+del oddsv6
 
 # Opponent VOP
 oppvopref = oddsv7[['Date','Team','VOPW','VOPL','VOP']].copy().rename(columns={'Team':'Opp',
@@ -325,6 +337,8 @@ oppvopref = oddsv7[['Date','Team','VOPW','VOPL','VOP']].copy().rename(columns={'
                                                                                 'VOPL':'OppVOPL'})
 oddsv8 = pd.merge(oddsv7, oppvopref, on=['Date','Opp'], how='left')
 oddsv8['VOPsum'] = oddsv8['VOP'] + oddsv8['OppVOP']
+# Reset Memory
+del oddsv7
 
 print('CGWR')
 # -- Close Game Weighted Record -- 
@@ -337,6 +351,8 @@ oddsv8['CGWR'] = oddsv8.groupby(['Season','Team'])['tempCGWR'].cumsum() - oddsv8
 
 # Drop Temp
 oddsv9 = oddsv8.drop('tempCGWR',axis=1)
+# Reset Memory
+del oddsv8
 
 ##################################################
 ###### End Processing ############################
