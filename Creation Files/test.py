@@ -117,6 +117,9 @@ oddsv2['ResultDummy'] = (oddsv2['MOV'] > 0)*1
 oddsv2['SpreadResultDummy'] = np.where(oddsv2['ATSMargin'] == 0, 'Push',
                                          np.where(oddsv2['ATSMargin'] > 0, 'Cover', 'Loss'))
 
+oddsv2['G'] = oddsv2.groupby(['Team','Season'])['Date'].rank(method = 'first',ascending=True)
+oddsv2['OppG'] = oddsv2.groupby(['Opp','Season'])['Date'].rank(method = 'first',ascending=True)
+
 # -------------------------- #
 # -- Create New Variables -- #
 # -------------------------- #
