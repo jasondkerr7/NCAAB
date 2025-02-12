@@ -327,16 +327,4 @@ oppvopref = oddsv7[['Date','Team','VOPW','VOPL','VOP']].copy().rename(columns={'
 oddsv8 = pd.merge(oddsv7, oppvopref, on=['Date','Opp'], how='left')
 oddsv8['VOPsum'] = oddsv8['VOP'] + oddsv8['OppVOP']
 
-print('CGWR')
-# -- Close Game Weighted Record -- 
-# Sort Values
-oddsv8 = oddsv8.sort_values('Date')
-
-# Results weighted by Closeness of Games to determine clutch value
-oddsv8['tempCGWR'] = np.maximum(0.1, (1-((abs(oddsv8['MOV'])/100)**3)*3000))*(oddsv8['MOV']/oddsv8['MOV'].abs())
-oddsv8['CGWR'] = oddsv8.groupby(['Season','Team'])['tempCGWR'].cumsum() - oddsv8['tempCGWR']
-
-# Drop Temp
-oddsv9 = oddsv8.drop('tempCGWR',axis=1)
-
 print("Ended with RAM Usage of -- ",psutil.virtual_memory().percent)
