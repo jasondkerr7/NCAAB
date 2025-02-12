@@ -298,4 +298,45 @@ oppsosref = oddsv5[['Date','Team','SOS']].copy().rename(columns={'Team':'Opp',
                                                                     'SOS':'OppSOS'})
 oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','Opp'], how='left')
 
+print('VOP')
+# -- Variance of Play --
+### Variance of Play defined as Spread in Wins minus Spread in Losses ###
+# Temp variables
+oddsv6['tempSpreadInLoss'] = (oddsv6['ResultDummy'] == 0)*(oddsv6['Spread'])
+oddsv6['tempSpreadInWin'] = (oddsv6['ResultDummy'] > 0)*(oddsv6['Spread'])
+
+# Cumulatively Sum the Temp Variables
+oddsv6['VOPW'] = (oddsv6.groupby(['Season','Team'])['tempSpreadInWin'].cumsum() -\
+                                                        oddsv6['tempSpreadInWin'])/oddsv6['G']
+oddsv6['VOPL'] = (oddsv6.groupby(['Season','Team'])['tempSpreadInLoss'].cumsum() -\
+                                                        oddsv6['tempSpreadInLoss'])/oddsv6['G']
+oddsv6['VOP'] = oddsv6['VOPW']-oddsv6['VOPL']
+# Normalize all three
+for var in ['VOPW','VOPL','VOP']:
+    mn = oddsv6[var].mean()
+    std = oddsv6[var].std()
+    oddsv6[var] = (oddsv6[var]-mn)/std
+# Remove Temp variables
+oddsv7 = oddsv6.drop(['tempSpreadInLoss','tempSpreadInWin'],axis=1)
+
+# Opponent VOP
+oppvopref = oddsv7[['Date','Team','VOPW','VOPL','VOP']].copy().rename(columns={'Team':'Opp',
+                                                                                'VOP':'OppVOP',
+                                                                                'VOPW':'OppVOPW',
+                                                                                'VOPL':'OppVOPL'})
+oddsv8 = pd.merge(oddsv7, oppvopref, on=['Date','Opp'], how='left')
+oddsv8['VOPsum'] = oddsv8['VOP'] + oddsv8['OppVOP']
+
+print('CGWR')
+# -- Close Game Weighted Record -- 
+# Sort Values
+oddsv8 = oddsv8.sort_values('Date')
+
+# Results weighted by Closeness of Games to determine clutch value
+oddsv8['tempCGWR'] = np.maximum(0.1, (1-((abs(oddsv8['MOV'])/100)**3)*3000))*(oddsv8['MOV']/oddsv8['MOV'].abs())
+oddsv8['CGWR'] = oddsv8.groupby(['Season','Team'])['tempCGWR'].cumsum() - oddsv8['tempCGWR']
+
+# Drop Temp
+oddsv9 = oddsv8.drop('tempCGWR',axis=1)
+
 print("Ended with RAM Usage of -- ",psutil.virtual_memory().percent)
