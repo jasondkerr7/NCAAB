@@ -94,10 +94,17 @@ try:
   driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
 except:
   try:
+    # Close the Cookies Bar if it's up
     driver.find_element(By.XPATH,'//button[@class="onetrust-close-btn-handler onetrust-close-btn-ui banner-close-button ot-close-icon"]').click()
     time.sleep(1)
     print('%%%%%%%%%%%%%%%%%%%%%%%%%      Closed out the Cookies bar          %%%%%%%%%%%%%%%%%%%%%%%%')
-    driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
+    try:
+      driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
+    except:
+      driver.find_element(By.XPATH,'//button[@data-popup-action="no"]').click()
+      print('%%%%%%%%%%%%%%%%%%%%%%%%%      Closed out another Pop Up          %%%%%%%%%%%%%%%%%%%%%%%%')
+      time.sleep(1)
+      driver.find_element(By.XPATH,'//select[@name="custom-filter-table_length"]').click()
   except:  
     driver.get_screenshot_as_file("screenshot.png")
     # Screenshot
