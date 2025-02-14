@@ -4,6 +4,7 @@
 
 ## -- Import Required Packages -- ##
 
+import gc
 import psutil
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -86,8 +87,8 @@ odds = odds.sort_values('Date', ascending=True)
 ###### Processing ################################
 ##################################################
 
-print("CPU Usage @ processing --",psutil.cpu_percent())
-print("RAM Usage @ processing --",psutil.virtual_memory().percent)
+print("CPU Usage @ processing --",psutil.cpu_percent(interval=1))
+print("RAM Usage @ processing --",psutil.virtual_memory(interval=1).percent)
 
 # -- Combine Odds with Conference -- #
 temp = pd.merge(odds, conference_reference, how='left', on=['Team','Season'])
@@ -123,8 +124,8 @@ oddsv2 = oddsv2.drop_duplicates().reset_index(drop=True)
 # -- Create New Variables -- #
 # -------------------------- #
 
-print("CPU Usage pre profits --",psutil.cpu_percent())
-print("RAM Usage pre profits --",psutil.virtual_memory().percent)
+print("CPU Usage pre profits --",psutil.cpu_percent(interval=1))
+print("RAM Usage pre profits --",psutil.virtual_memory(interval=1).percent)
 
 print('Profits')
 # -- Profits --
@@ -141,11 +142,11 @@ oddsv2 = oddsv2.sort_values('Date', ascending=True)
 oddsv2['G'] = oddsv2.groupby(['Team','Season'])['Date'].rank(method = 'first',ascending=True)
 oddsv2['OppG'] = oddsv2.groupby(['Opp','Season'])['Date'].rank(method = 'first',ascending=True)
 # Reset Memory
-print("CPU Usage BEFORE deleting odds --",psutil.cpu_percent())
-print("RAM Usage BEFORE deleting odds --",psutil.virtual_memory().percent)
+print("CPU Usage BEFORE deleting odds --",psutil.cpu_percent(interval=1))
+print("RAM Usage BEFORE deleting odds --",psutil.virtual_memory(interval=1).percent)
 del odds
-print("CPU Usage AFTER deleting odds --",psutil.cpu_percent())
-print("RAM Usage AFTER deleting odds --",psutil.virtual_memory().percent)
+print("CPU Usage AFTER deleting odds --",psutil.cpu_percent(interval=1))
+print("RAM Usage AFTER deleting odds --",psutil.virtual_memory(interval=1).percent)
 
 print('Previous Game Stats')
 # -- Previous Game Stats --
@@ -170,8 +171,8 @@ oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
 print("CPU Usage BEFORE deleting oddsv2 --",psutil.cpu_percent())
 print("RAM Usage BEFORE deleting oddsv2 --",psutil.virtual_memory().percent)
 del oddsv2
-print("CPU Usage AFTER deleting oddsv2 --",psutil.cpu_percent())
-print("RAM Usage AFTER deleting oddsv2 --",psutil.virtual_memory().percent)
+print("CPU Usage AFTER deleting oddsv2 --",psutil.cpu_percent(interval=1))
+print("RAM Usage AFTER deleting oddsv2 --",psutil.virtual_memory(interval=1).percent)
 
 print('Win/Loss & ATS')
 # -- Win/Loss & ATS --
@@ -241,11 +242,11 @@ opprecords = opprecords.rename(columns=temp)
 # Combine
 oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
 # Reset Memory
-print("CPU Usage BEFORE deleting oddsv3 --",psutil.cpu_percent())
-print("RAM Usage BEFORE deleting oddsv3 --",psutil.virtual_memory().percent)
+print("CPU Usage BEFORE deleting oddsv3 --",psutil.cpu_percent(interval=1))
+print("RAM Usage BEFORE deleting oddsv3 --",psutil.virtual_memory(interval=1).percent)
 del oddsv3
-print("CPU Usage AFTER deleting oddsv3 --",psutil.cpu_percent())
-print("RAM Usage AFTER deleting oddsv3 --",psutil.virtual_memory().percent)
+print("CPU Usage AFTER deleting oddsv3 --",psutil.cpu_percent(interval=1))
+print("RAM Usage AFTER deleting oddsv3 --",psutil.virtual_memory(interval=1).percent)
 
 print('Rematch Stats')
 # -- Rematch Stats --
@@ -259,11 +260,11 @@ temp = temp[['Team','Opp','Season','UniqueGames','Location','MOV','Spread','ATSM
 temp.columns = ['Team','Opp','Season','UniqueGames','RematchLocation','RematchMOV','RematchSpread','RematchATSMargin']
 oddsv5 = pd.merge(oddsv4, temp, on=['Team','Opp','Season','UniqueGames'], how='left')
 # Reset Memory
-print("CPU Usage BEFORE deleting oddsv4 --",psutil.cpu_percent())
-print("RAM Usage BEFORE deleting oddsv4 --",psutil.virtual_memory().percent)
+print("CPU Usage BEFORE deleting oddsv4 --",psutil.cpu_percent(interval=1))
+print("RAM Usage BEFORE deleting oddsv4 --",psutil.virtual_memory(interval=1).percent)
 del oddsv4
-print("CPU Usage AFTER deleting oddsv4 --",psutil.cpu_percent())
-print("RAM Usage AFTER deleting oddsv4 --",psutil.virtual_memory().percent)
+print("CPU Usage AFTER deleting oddsv4 --",psutil.cpu_percent(interval=1))
+print("RAM Usage AFTER deleting oddsv4 --",psutil.virtual_memory(interval=1).percent)
 
 print('SOS')
 # -- Strength of Schedule --
@@ -331,11 +332,11 @@ oppsosref = oddsv5[['Date','Team','SOS']].copy().rename(columns={'Team':'Opp',
                                                                     'SOS':'OppSOS'})
 oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','Opp'], how='left')
 # Reset Memory
-print("CPU Usage BEFORE deleting oddsv5 w/ gc --",psutil.cpu_percent())
-print("RAM Usage BEFORE deleting oddsv5 w/ gc --",psutil.virtual_memory().percent)
+print("CPU Usage BEFORE deleting oddsv5 w/ gc --",psutil.cpu_percent(interval=1))
+print("RAM Usage BEFORE deleting oddsv5 w/ gc --",psutil.virtual_memory(interval=1).percent)
 del oddsv5
 time.sleep(1)
 gc.collect()
-print("CPU Usage AFTER deleting oddsv5 w/ gc --",psutil.cpu_percent())
-print("RAM Usage AFTER deleting oddsv5 w/ gc --",psutil.virtual_memory().percent)
+print("CPU Usage AFTER deleting oddsv5 w/ gc --",psutil.cpu_percent(interval=1))
+print("RAM Usage AFTER deleting oddsv5 w/ gc --",psutil.virtual_memory(interval=1).percent)
 
