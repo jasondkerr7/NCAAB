@@ -355,7 +355,7 @@ oddsv8['CGWR'] = oddsv8.groupby(['Season','Team'])['tempCGWR'].cumsum() - oddsv8
 oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 # Reset Memory
 del oddsv8
-print('After CGWP',len(oddsv6))
+print('After CGWP',len(oddsv9))
 
 ##################################################
 ###### End Processing ############################
