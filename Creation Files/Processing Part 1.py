@@ -303,7 +303,7 @@ oddsv5 = oddsv5.drop(['SOSW','SOSL'], axis=1)
 
 # Opponent SOS
 oppsosref = oddsv5[['Date','G','Team','SOS']].copy().rename(columns={'Team':'Opp',
-                                                                     'G':'OppG'
+                                                                     'G':'OppG',
                                                                     'SOS':'OppSOS'})
 oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','OppG','Opp'], how='left')
 # Reset Memory
