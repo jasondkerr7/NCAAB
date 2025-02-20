@@ -78,6 +78,7 @@ odds['Date'] = pd.to_datetime(odds['Date'])
 odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
 odds = odds.sort_values('Date', ascending=True)
 
+print('Pre-Processing',len(odds))
 ##################################################
 ###### Processing ################################
 ##################################################
@@ -112,11 +113,11 @@ temp = pd.merge(odds, rankings_ref, on=['Team','DateRef'], how='left')
 oddsv2 = pd.merge(temp, opp_rankings_ref, on=['Opp','DateRef'], how='left')
 oddsv2 = oddsv2.drop_duplicates().reset_index(drop=True)
 
+print('After Processing',len(oddsv2))
 # -------------------------- #
 # -- Create New Variables -- #
 # -------------------------- #
 
-print('Profits')
 # -- Profits --
 oddsv2['ATSProfit'] = (oddsv2['ATSMargin'] > 0)*100 + (oddsv2['ATSMargin'] < 0)*-110
 oddsv2['MLProfit'] = ((oddsv2['ML'] < 0)*(oddsv2['MOV'] > 0)*100 + # Favorite Winner
@@ -125,7 +126,7 @@ oddsv2['MLProfit'] = ((oddsv2['ML'] < 0)*(oddsv2['MOV'] > 0)*100 + # Favorite Wi
                       (oddsv2['ML'] > 0)*(oddsv2['MOV'] < 0)*-100 # Underdog Loser
                      )
 
-print('Game Number')
+print('After Profits',len(oddsv2))
 #  -- Game Number --
 oddsv2 = oddsv2.sort_values('Date', ascending=True)
 oddsv2['G'] = oddsv2.groupby(['Team','Season'])['Date'].rank(method = 'first',ascending=True)
@@ -133,7 +134,7 @@ oddsv2['OppG'] = oddsv2.groupby(['Opp','Season'])['Date'].rank(method = 'first',
 # Reset Memory
 del odds
 
-print('Previous Game Stats')
+print('After Game Number',len(oddsv2))
 # -- Previous Game Stats --
 # Initialize
 pg_key_cols = ['Team','Season','G']
@@ -155,7 +156,7 @@ oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
 # Reset Memory
 del oddsv2
 
-print('Win/Loss & ATS')
+print('After PG Stats',len(oddsv3))
 # -- Win/Loss & ATS --
 # Basic Result Dummy's
 oddsv3['ResultDummy'] = (oddsv3['MOV'] > 0)*1
@@ -225,7 +226,7 @@ oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
 # Reset Memory
 del oddsv3
 
-print('Rematch Stats')
+print('After Win/Loss Stats',len(oddsv4))
 # -- Rematch Stats --
 # Create game ID for Rematch identification
 oddsv4['UniqueGames'] = oddsv4.groupby(['Team','Opp','Season']).G.rank(method='first',ascending=True)
@@ -239,7 +240,7 @@ oddsv5 = pd.merge(oddsv4, temp, on=['Team','Opp','Season','UniqueGames'], how='l
 # Reset Memory
 del oddsv4
 
-print('SOS')
+print('After Rematch Stats',len(oddsv5))
 # -- Strength of Schedule --
 ## $ Watch for D3 Teams (Maybe fix by only working with Teams where Conf != np.nan?)
 # Initialize
@@ -311,7 +312,7 @@ del oddsv5
 ###### End Processing ############################
 ##################################################
 
-print('File Creation')
+print('After Processing',len(oddsv6))
 # Test File Creation #
 creation_name = 'Incomplete - Processed Stats 2021-2024'
 oddsv6.to_csv('saved_file.csv',index=False)
