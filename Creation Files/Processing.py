@@ -333,11 +333,12 @@ oddsv7 = oddsv6.drop(['tempSpreadInLoss','tempSpreadInWin'],axis=1)
 del oddsv6
 
 # Opponent VOP
-oppvopref = oddsv7[['Date','Team','VOPW','VOPL','VOP']].copy().rename(columns={'Team':'Opp',
+oppvopref = oddsv7[['Date','Team','G','VOPW','VOPL','VOP']].copy().rename(columns={'Team':'Opp',
+                                                                                   'G':'OppG',
                                                                                 'VOP':'OppVOP',
                                                                                 'VOPW':'OppVOPW',
                                                                                 'VOPL':'OppVOPL'})
-oddsv8 = pd.merge(oddsv7, oppvopref, on=['Date','Opp'], how='left')
+oddsv8 = pd.merge(oddsv7, oppvopref, on=['Date','G','Opp'], how='left')
 oddsv8['VOPsum'] = oddsv8['VOP'] + oddsv8['OppVOP']
 # Reset Memory
 del oddsv7
