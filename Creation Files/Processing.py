@@ -149,7 +149,7 @@ previous_game_ref.columns = pg_new_cols
 previous_game_ref['G'] = previous_game_ref['G'] + 1
 ### Create Opp DF
 opp_previous_game_ref = previous_game_ref.copy()
-opp_previous_game_ref.columns = opp_pg_key_cols + ['Opp' + y for y in pg_stats_cols]
+opp_previous_game_ref.columns = opp_pg_key_cols + ['Opppg' + y for y in pg_stats_cols]
 # Merge
 temp = pd.merge(oddsv2, previous_game_ref, on=pg_key_cols, how='left')
 oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
