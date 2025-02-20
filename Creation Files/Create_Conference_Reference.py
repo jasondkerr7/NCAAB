@@ -74,14 +74,16 @@ teamhelp = dict(zip(temp['Bart Torvik'],temp['Pandas']))
 # Initialize
 yearrange = range(2006,2026)
 conferences_bt = pd.DataFrame()
-team_list = []
-conf_list = []
 
 for yr in yearrange:
   # get HTML from URL
   url = 'https://barttorvik.com/trank.php?year='+str(yr)+'&sort=&top=0&conlimit=All#'
   page = requests.get(url)
   soup = BeautifulSoup(page.text, 'lxml')
+  
+  # Initalize in Loop
+  team_list = []
+  conf_list = []
   
   # Loop through the rows
   for row in soup.find_all('tr',{'class':'seedrow'}):
