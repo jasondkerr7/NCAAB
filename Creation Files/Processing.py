@@ -46,6 +46,25 @@ import json
 import lxml
 import sys
 
+# Helpful Functions
+all_stats_col = ['MP', 'ORTG', 'Usage', 'eFG', 'TS_per', 'ORB_per', 'DRB_per', 'AST_per', 'TO_per', 
+                 'DunksM','DunksAtt', 'AtRimM', 'AtRimAtt', 'MidM', 'MidAtt', '2PM', '2PA', '3PM',
+                   '3PA', 'FTM', 'FTA', 'OBPM', 'DBPM', 'BPM_net', 'PTS', 'ORB', 'DRB',
+                   'AST', 'TOV', 'STL', 'BLK', 'STL_per', 'BLK_per', 'PF', 'POSS', 'BPM']
+
+total_stats_col = ['MP','DunksM','DunksAtt', 'AtRimM', 'AtRimAtt', 'MidM', 'MidAtt', 
+                  '2PM', '2PA', '3PM','3PA', 'FGM', 'FGA', 'FTM', 'FTA', 'PTS',
+                  'ORB', 'DRB','TRB','AST', 'TOV', 'STL', 'BLK', 'PF', 'POSS', 'OffGameScore']
+
+all_agg_stats = total_stats_col + ['AMP', 'StarScore', 'Avg Height','Avg Experience']
+
+rate_stats_col = ['ORTG','Usage', 'eFG', 'TS_per', 'ORB_per', 'DRB_per', 'AST_per',
+                     'TO_per', 'OBPM', 'DBPM', 'BPM_net', 'STL_per', 'BLK_per', 'BPM']
+
+player_info_col = ['Player','Height', 'Class', 'PID']
+
+game_info_col = ['Team', 'Opp', 'Date', 'ResultDummy', 'Season']
+
 # -- GOOGLE CONNECTION -- #
 # Prepare auth json for google connection
 cred_json = os.environ['SERVICE_ACCOUNT_CREDENTIALS_JSON']
@@ -65,6 +84,7 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 odds = pd.read_csv('https://docs.google.com/uc?id=1U229Lq93X4Cd9ovtYyVD7fQ3G4ragqwQ').rename(columns={'Opponent':'Opp'})
 rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vOF46aunn')
 conference_reference = pd.read_csv('https://docs.google.com/uc?id=1ewDetzYCoyS5hnVBMjXaiTSM_fLop3wy')[['Team','Conf','Season']]
+team_agg_stats = pd.read_csv('https://docs.google.com/uc?id=17p3ZBuoFeYSj4E64pRuLUJBL7LpSvfin')
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
 
@@ -357,6 +377,18 @@ oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 # Reset Memory
 del oddsv8
 print('After CGWP',len(oddsv9))
+
+# -- Merge Team DB with Player DB --
+odds_wip = pd.merge(oddsv8, team_agg_stats.drop('MP',axis=1), on = ['Team','Season','Date'], how='left')
+
+# Opponents
+temp_col_list = all_agg_stats + ['Def' + col for col in total_stats_col]
+# Opponent Stats
+temp = team_agg_stats.drop('MP',axis=1)
+temp.columns = ['Opp'+col if col in temp_col_list else col for col in team_agg_stats.drop('MP',axis=1).columns]
+temp.rename(columns={'Team':'Opp'},inplace=True)
+# Merge
+final_odds = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
 
 ##################################################
 ###### End Processing ############################
