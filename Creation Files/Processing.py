@@ -97,6 +97,7 @@ rankings['Date'] = pd.to_datetime(rankings['Date'])
 odds['Date'] = pd.to_datetime(odds['Date'])
 odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
 odds = odds.sort_values('Date', ascending=True)
+team_agg_stats['Date'] = pd.to_datetime(team_agg_stats['Date'])
 
 print('Pre-Processing',len(odds))
 ##################################################
