@@ -246,3 +246,21 @@ agged['Avg Experience'] = (agged['Total Experience']/agged['Total Minutes']).rou
 
 # Merge #
 team_agg_stats = pd.merge(team_agg_stats_v3, agged[['Date', 'Team','Avg Height','Avg Experience']], on=['Date', 'Team'], how='left')
+
+##################################################
+###### End Setup #################################
+##################################################
+
+# Test File Creation #
+creation_name = 'Player Stats through 2024'
+allranks.to_csv('saved_file.csv',index=False)
+
+# Upload File
+returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
+file_metadata = {'name': creation_name+'.csv'}
+media = MediaFileUpload('saved_file.csv',
+                        mimetype='text/csv')
+file = ggl_drive.files().update(fileId='17p3ZBuoFeYSj4E64pRuLUJBL7LpSvfin',
+                                body=file_metadata, 
+                                media_body=media,
+                              fields=returned_fields).execute()
