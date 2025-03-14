@@ -188,7 +188,7 @@ team_def_agg_stats.columns = ['Def'+col if col in total_stats_col else col for c
 team_def_agg_stats.rename(columns={'Opp':'Team'},inplace=True)
 
 # Merge Off and Def Stats #
-team_agg_stats_v1 = pd.merge(team_game_logs, team_def_agg_stats, on=['Team','Season','Date'], how='left')
+team_agg_stats_v1 = pd.merge(team_agg_stats, team_def_agg_stats, on=['Team','Season','Date'], how='left')
 
 # AMP #
 
