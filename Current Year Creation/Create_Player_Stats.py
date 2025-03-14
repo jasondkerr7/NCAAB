@@ -92,25 +92,22 @@ teamhelp_os.pop(np.nan, 'nope')
 
 ncaa_player_wip = pd.DataFrame()
 
-for yr in range(2021, 2025):
+testfile = urllib.request.URLopener()
+testfile.retrieve("https://barttorvik.com/2025_all_advgames.json.gz", "file.gz")
+with gzip.GzipFile("file.gz", 'r') as fin:
+    json_bytes = fin.read()
+json_str = json_bytes.decode('utf-8')
+test_data = json.loads(json_str)
 
-    testfile = urllib.request.URLopener()
-    testfile.retrieve("https://barttorvik.com/"+str(yr)+"_all_advgames.json.gz", "file.gz")
-    with gzip.GzipFile("file.gz", 'r') as fin:
-        json_bytes = fin.read()
-    json_str = json_bytes.decode('utf-8')
-    test_data = json.loads(json_str)
+data = pd.DataFrame(test_data)
+data.columns = list(barttorvik_headers['Column Names'])
+data.drop('XXX',axis=1,inplace=True)
 
-    data = pd.DataFrame(test_data)
-    data.columns = list(barttorvik_headers['Column Names'])
-    data.drop('XXX',axis=1,inplace=True)
-    
-    ncaa_player_wip = pd.concat([ncaa_player_wip,data], ignore_index=True)
+ncaa_player_wip = data.copy()
 
 # Process Columns
 ncaa_player_wip['Team'].replace(teamhelp_gl_dict, inplace=True)
 ncaa_player_wip['Opp'].replace(teamhelp_gl_dict, inplace=True)
-ncaa_player_wip['Season'] = ncaa_player_wip['Season']
 ncaa_player_wip['Date'] = pd.to_datetime(ncaa_player_wip['DateNum'])
 ncaa_player_wip.drop('DateNum', axis=1, inplace=True)
 
@@ -252,7 +249,7 @@ team_agg_stats = pd.merge(team_agg_stats_v3, agged[['Date', 'Team','Avg Height',
 ##################################################
 
 # Test File Creation #
-creation_name = 'Player Stats through 2024'
+creation_name = 'Current Year Player Stats'
 team_agg_stats.to_csv('saved_file.csv',index=False)
 
 # Upload File
@@ -260,7 +257,7 @@ returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
 file_metadata = {'name': creation_name+'.csv'}
 media = MediaFileUpload('saved_file.csv',
                         mimetype='text/csv')
-file = ggl_drive.files().update(fileId='17p3ZBuoFeYSj4E64pRuLUJBL7LpSvfin',
+file = ggl_drive.files().update(fileId='1yYXa7aWdXYYE2D6vdbElkThdOlIgM5zz',
                                 body=file_metadata, 
                                 media_body=media,
                               fields=returned_fields).execute()
