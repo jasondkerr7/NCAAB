@@ -379,7 +379,7 @@ del oddsv8
 print('After CGWP',len(oddsv9))
 
 # -- Merge Team DB with Player DB --
-odds_wip = pd.merge(oddsv8, team_agg_stats.drop('MP',axis=1), on = ['Team','Season','Date'], how='left')
+odds_wip = pd.merge(oddsv9, team_agg_stats.drop('MP',axis=1), on = ['Team','Season','Date'], how='left')
 
 # Opponents
 temp_col_list = all_agg_stats + ['Def' + col for col in total_stats_col]
