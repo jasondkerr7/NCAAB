@@ -390,6 +390,10 @@ temp.columns = ['Opp'+col if col in temp_col_list else col for col in team_agg_s
 temp.rename(columns={'Team':'Opp'},inplace=True)
 # Merge
 final_odds = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
+print('final_odds Length: ',len(final_odds))
+print('final_odds Columns: ',len(final_odds.columns))
+print('team_agg_stats Length: ',len(team_agg_stats))
+print('team_agg_stats Columns: ',len(team_agg_stats.columns))
 
 ##################################################
 ###### End Processing ############################
