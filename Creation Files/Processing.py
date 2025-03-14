@@ -395,7 +395,7 @@ final_odds = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
 ##################################################
 
 # Test File Creation #
-creation_name = 'Incomplete - Processed Stats 2021-2024'
+creation_name = 'Processed Stats 2021-2024'
 oddsv9.to_csv('saved_file.csv',index=False)
 
 # Upload File
