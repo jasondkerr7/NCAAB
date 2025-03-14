@@ -253,7 +253,7 @@ team_agg_stats = pd.merge(team_agg_stats_v3, agged[['Date', 'Team','Avg Height',
 
 # Test File Creation #
 creation_name = 'Player Stats through 2024'
-allranks.to_csv('saved_file.csv',index=False)
+team_agg_stats.to_csv('saved_file.csv',index=False)
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
