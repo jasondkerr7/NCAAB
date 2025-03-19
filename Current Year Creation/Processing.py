@@ -84,7 +84,7 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 odds = pd.read_csv('https://docs.google.com/uc?id=1d6slsiCtovW0zJgG5eqrgAFzJEW17r7K').rename(columns={'Opponent':'Opp'})
 rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vOF46aunn')
 conference_reference = pd.read_csv('https://docs.google.com/uc?id=1ewDetzYCoyS5hnVBMjXaiTSM_fLop3wy')[['Team','Conf','Season']]
-team_agg_stats = pd.read_csv('https://docs.google.com/uc?id=17p3ZBuoFeYSj4E64pRuLUJBL7LpSvfin')
+team_agg_stats = pd.read_csv('https://docs.google.com/uc?id=1yYXa7aWdXYYE2D6vdbElkThdOlIgM5zz')
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1GAILK1kQ4BPGvIs3E0a-M83yeCYofiQfSbFpp4NNnHI/export?format=csv&gid=0')
 NattyDates = temp.loc[~temp['Season'].isna(),['Season','StartNatty']]
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1WgzvFxF8Ze3aQ5smjSMvAedVlbhkqh97sP7lvXCmSv8/export?format=csv&gid=0')
@@ -95,6 +95,7 @@ oppmarchmadness = temp[['Season','Team','Seed','Berth']].rename(columns={'Team':
                                                                    'Berth':'OppTourneyBerth'}).copy()
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
+teamhelp = dict(zip(temp['Odds Shark Opponents'],temp['Pandas']))
 
 ############
 # Read in Upcoming Games
@@ -154,6 +155,10 @@ for col in ['Spread','ML','Total']:
     odds_shark_games[col] = pd.to_numeric(odds_shark_games[col], errors='coerce')
 odds_shark_games['Date'] = pd.to_datetime(odds_shark_games['Date'])    
 odds_shark_games = odds_shark_games[~odds_shark_games['Spread'].isna()]
+# Fix team names
+odds_shark_games['Team'].replace(teamhelp,inplace=True)
+odds_shark_games['Opponent'].replace(teamhelp,inplace=True)
+print('odds_shark_games Length:',len(odds_shark_games))
 
 ### Create from files
 opp_conference_reference = conference_reference.rename(columns={'Team':'Opp',
@@ -166,6 +171,7 @@ odds['Date'] = pd.to_datetime(odds['Date'])
 odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
 odds = odds.sort_values('Date', ascending=True)
 team_agg_stats['Date'] = pd.to_datetime(team_agg_stats['Date'])
+print('odds after merge Length:',len(odds))
 
 ##################################################
 ###### Processing ################################
