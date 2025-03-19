@@ -85,6 +85,14 @@ odds = pd.read_csv('https://docs.google.com/uc?id=1U229Lq93X4Cd9ovtYyVD7fQ3G4rag
 rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vOF46aunn')
 conference_reference = pd.read_csv('https://docs.google.com/uc?id=1ewDetzYCoyS5hnVBMjXaiTSM_fLop3wy')[['Team','Conf','Season']]
 team_agg_stats = pd.read_csv('https://docs.google.com/uc?id=17p3ZBuoFeYSj4E64pRuLUJBL7LpSvfin')
+temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1GAILK1kQ4BPGvIs3E0a-M83yeCYofiQfSbFpp4NNnHI/export?format=csv&gid=0')
+NattyDates = temp.loc[~temp['Season'].isna(),['Season','StartNatty']]
+temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1WgzvFxF8Ze3aQ5smjSMvAedVlbhkqh97sP7lvXCmSv8/export?format=csv&gid=0')
+marchmadness = temp[['Season','Team','Seed','Berth']].rename(columns={'Seed':'TourneySeed',
+                                                                   'Berth':'TourneyBerth'}).copy()
+oppmarchmadness = temp[['Season','Team','Seed','Berth']].rename(columns={'Team':'Opp',
+                                                                    'Seed':'OppTourneySeed',
+                                                                   'Berth':'OppTourneyBerth'}).copy()
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
 
@@ -248,6 +256,22 @@ oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
 del oddsv3
 
 print('After Win/Loss Stats',len(oddsv4))
+
+# -- Natty Tournament --
+oddsv4 = pd.merge(oddsv4, NattyDates, on=['Season'], how='left')
+oddsv4 = pd.merge(oddsv4, marchmadness, on = ['Season','Team'], how='left')
+oddsv4 = pd.merge(oddsv4, oppmarchmadness, on = ['Season','Opp'], how='left')
+
+oddsv4['TourneyGame'] = ((oddsv4['Date'] >= oddsv4['StartNatty']) & (~oddsv4['TourneySeed'].isna()))*1
+oddsv4['TourneyPlayIn'] = ((oddsv4['TourneySeed'] == oddsv4['OppTourneySeed']) &
+                                (oddsv4['TourneySeed'] + oddsv4['OppTourneySeed'] > 15))*1
+
+temp = oddsv4[(oddsv4['TourneyGame'] == 1) &
+                 (oddsv4['TourneyPlayIn'] != 1)].copy()
+temp['TourneyRound'] = temp.groupby(['Season','Team'])['Date'].rank(ascending=True)
+tourneyroundhelperdf = temp[['Date','Team','TourneyRound']]
+oddsv4 = pd.merge(oddsv4, tourneyroundhelperdf, on=['Date','Team'], how='left')
+
 # -- Rematch Stats --
 # Create game ID for Rematch identification
 oddsv4['UniqueGames'] = oddsv4.groupby(['Team','Opp','Season']).G.rank(method='first',ascending=True)
