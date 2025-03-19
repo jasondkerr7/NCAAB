@@ -38,9 +38,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run the Player Stats python file
-        run: |
-          python "Creation Files/Create_Player_Stats.py"
       - name: Run the Processing python file
         run: |
           python "Creation Files/Processing.py" 
