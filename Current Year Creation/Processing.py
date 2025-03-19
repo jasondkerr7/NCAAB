@@ -107,33 +107,40 @@ user_agent = 'Chrome/60.0.3112.50'
 options.add_argument(f'user-agent={user_agent}')
 driver = webdriver.Chrome(service=service, options=options)
 
-# Access Website
-soup = BeautifulSoup(requests.get('https://www.oddsshark.com/ncaab/odds').content)
+for xy in range(0,5):
+    try:
+        # Access Website
+        soup = BeautifulSoup(requests.get('https://www.oddsshark.com/ncaab/odds').content)
 
-# Initialize
-teams = []
-opps = []
-spreads = []
-mls = []
-totals = []
-tomorrow = (datetime.today() + timedelta(days=1)).strftime('%m/%d/%y')
+        # Initialize
+        teams = []
+        opps = []
+        spreads = []
+        mls = []
+        totals = []
+        tomorrow = (datetime.today() + timedelta(days=1)).strftime('%m/%d/%y')
 
-for gm in soup.select('div[class*="odds--group__event-container basketball"]'):
-    # First Row
-    teams.append(gm.select('div[class="participant-name"]')[0]['title'])
-    opps.append(gm.select('div[class="participant-name"]')[1]['title'])
-    fr = gm.select('div[class="odds--group__event-book book-10039"]')[0].select('div[class="first-row"]')[0]
-    spreads.append(fr.select('div[class="odds-spread"]')[0].select('div')[0].text)
-    mls.append(fr.select('div[class="odds-moneyline hide"]')[0].select('div')[1].text)
-    totals.append(fr.select('div[class="odds-total hide"]')[0].select('div')[0].text[2:])
-    
-    # Second Row
-    teams.append(gm.select('div[class="participant-name"]')[1]['title'])
-    opps.append(gm.select('div[class="participant-name"]')[0]['title'])
-    fr = gm.select('div[class="odds--group__event-book book-10039"]')[0].select('div[class="second-row"]')[0]
-    spreads.append(fr.select('div[class="odds-spread"]')[0].select('div')[0].text)
-    mls.append(fr.select('div[class="odds-moneyline hide"]')[0].select('div')[1].text)
-    totals.append(fr.select('div[class="odds-total hide"]')[0].select('div')[0].text[2:])
+        for gm in soup.select('div[class*="odds--group__event-container basketball"]'):
+            # First Row
+            teams.append(gm.select('div[class="participant-name"]')[0]['title'])
+            opps.append(gm.select('div[class="participant-name"]')[1]['title'])
+            fr = gm.select('div[class="odds--group__event-book book-10039"]')[0].select('div[class="first-row"]')[0]
+            spreads.append(fr.select('div[class="odds-spread"]')[0].select('div')[0].text)
+            mls.append(fr.select('div[class="odds-moneyline hide"]')[0].select('div')[1].text)
+            totals.append(fr.select('div[class="odds-total hide"]')[0].select('div')[0].text[2:])
+            
+            # Second Row
+            teams.append(gm.select('div[class="participant-name"]')[1]['title'])
+            opps.append(gm.select('div[class="participant-name"]')[0]['title'])
+            fr = gm.select('div[class="odds--group__event-book book-10039"]')[0].select('div[class="second-row"]')[0]
+            spreads.append(fr.select('div[class="odds-spread"]')[0].select('div')[0].text)
+            mls.append(fr.select('div[class="odds-moneyline hide"]')[0].select('div')[1].text)
+            totals.append(fr.select('div[class="odds-total hide"]')[0].select('div')[0].text[2:])
+            break
+    except:
+        time.sleep(2)
+        print('Attempt #',xy)
+        continue
     
 odds_shark_games = pd.DataFrame({'Date':tomorrow,
                                  'Team':teams,
