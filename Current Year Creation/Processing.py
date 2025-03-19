@@ -137,7 +137,7 @@ for xy in range(0,5):
             spreads.append(fr.select('div[class="odds-spread"]')[0].select('div')[0].text)
             mls.append(fr.select('div[class="odds-moneyline hide"]')[0].select('div')[1].text)
             totals.append(fr.select('div[class="odds-total hide"]')[0].select('div')[0].text[2:])
-            break
+        break
     except:
         time.sleep(2)
         print('Attempt #',xy)
