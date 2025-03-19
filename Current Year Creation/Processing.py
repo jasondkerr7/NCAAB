@@ -157,7 +157,7 @@ odds_shark_games['Date'] = pd.to_datetime(odds_shark_games['Date'])
 odds_shark_games = odds_shark_games[~odds_shark_games['Spread'].isna()]
 # Fix team names
 odds_shark_games['Team'].replace(teamhelp,inplace=True)
-odds_shark_games['Opponent'].replace(teamhelp,inplace=True)
+odds_shark_games['Opp'].replace(teamhelp,inplace=True)
 print('odds_shark_games Length:',len(odds_shark_games))
 
 ### Create from files
