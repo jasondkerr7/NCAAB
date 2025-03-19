@@ -153,12 +153,12 @@ opp_conference_reference = conference_reference.rename(columns={'Team':'Opp',
                                                        'Conf':'OppConf'})
 
 ### Pre-Processing
+odds = pd.concat([odds,odds_shark_games],ignore_index=True)
 rankings['Date'] = pd.to_datetime(rankings['Date'])
 odds['Date'] = pd.to_datetime(odds['Date'])
 odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
 odds = odds.sort_values('Date', ascending=True)
 team_agg_stats['Date'] = pd.to_datetime(team_agg_stats['Date'])
-odds = pd.concat([odds,odds_shark_games],ignore_index=True)
 
 ##################################################
 ###### Processing ################################
