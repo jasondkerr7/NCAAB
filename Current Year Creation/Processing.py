@@ -108,10 +108,7 @@ options.add_argument(f'user-agent={user_agent}')
 driver = webdriver.Chrome(service=service, options=options)
 
 # Access Website
-driver.get('https://www.oddsshark.com/ncaab/odds')
-# Generate List of Columns to check
-page_source = driver.page_source
-soup = BeautifulSoup(page_source)
+soup = BeautifulSoup(requests.get('https://www.oddsshark.com/ncaab/odds').content)
 
 # Initialize
 teams = []
