@@ -119,7 +119,7 @@ opps = []
 spreads = []
 mls = []
 totals = []
-tomorrow = (datetime.datetime.today() + datetime.timedelta(days=1)).strftime('%m/%d/%y')
+tomorrow = (datetime.today() + timedelta(days=1)).strftime('%m/%d/%y')
 
 for gm in soup.select('div[class*="odds--group__event-container basketball"]'):
     # First Row
