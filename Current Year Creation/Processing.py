@@ -81,12 +81,75 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 
 # -- Read Files -- #
 # Creation Files
-odds = pd.read_csv('https://docs.google.com/uc?id=1d6slsiCtovW0zJgG5eqrgAFzJEW17r7K').rename(columns={'Opponent':'Opp'})
-rankings = pd.read_csv('https://docs.google.com/uc?id=1YI5txYdHgmB3Sw_wwxY0eLsaXzD4dyrr')
+odds = pd.read_csv('https://docs.google.com/uc?id=1U229Lq93X4Cd9ovtYyVD7fQ3G4ragqwQ').rename(columns={'Opponent':'Opp'})
+rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vOF46aunn')
 conference_reference = pd.read_csv('https://docs.google.com/uc?id=1ewDetzYCoyS5hnVBMjXaiTSM_fLop3wy')[['Team','Conf','Season']]
-team_agg_stats = pd.read_csv('https://docs.google.com/uc?id=1yYXa7aWdXYYE2D6vdbElkThdOlIgM5zz')
+team_agg_stats = pd.read_csv('https://docs.google.com/uc?id=17p3ZBuoFeYSj4E64pRuLUJBL7LpSvfin')
+temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1GAILK1kQ4BPGvIs3E0a-M83yeCYofiQfSbFpp4NNnHI/export?format=csv&gid=0')
+NattyDates = temp.loc[~temp['Season'].isna(),['Season','StartNatty']]
+temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1WgzvFxF8Ze3aQ5smjSMvAedVlbhkqh97sP7lvXCmSv8/export?format=csv&gid=0')
+marchmadness = temp[['Season','Team','Seed','Berth']].rename(columns={'Seed':'TourneySeed',
+                                                                   'Berth':'TourneyBerth'}).copy()
+oppmarchmadness = temp[['Season','Team','Seed','Berth']].rename(columns={'Team':'Opp',
+                                                                    'Seed':'OppTourneySeed',
+                                                                   'Berth':'OppTourneyBerth'}).copy()
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
+
+############
+# Read in Upcoming Games
+############
+# Setup Connection
+service = Service()
+options = webdriver.ChromeOptions()
+options.add_argument("--headless=new")
+user_agent = 'Chrome/60.0.3112.50'
+options.add_argument(f'user-agent={user_agent}')
+driver = webdriver.Chrome(service=service, options=options)
+
+# Access Website
+driver.get('https://www.oddsshark.com/ncaab/odds')
+# Generate List of Columns to check
+page_source = driver.page_source
+soup = BeautifulSoup(page_source)
+
+# Initialize
+teams = []
+opps = []
+spreads = []
+mls = []
+totals = []
+tomorrow = (datetime.datetime.today() + datetime.timedelta(days=1)).strftime('%m/%d/%y')
+
+for gm in soup.select('div[class*="odds--group__event-container basketball"]'):
+    # First Row
+    teams.append(gm.select('div[class="participant-name"]')[0]['title'])
+    opps.append(gm.select('div[class="participant-name"]')[1]['title'])
+    fr = gm.select('div[class="odds--group__event-book book-10039"]')[0].select('div[class="first-row"]')[0]
+    spreads.append(fr.select('div[class="odds-spread"]')[0].select('div')[0].text)
+    mls.append(fr.select('div[class="odds-moneyline hide"]')[0].select('div')[1].text)
+    totals.append(fr.select('div[class="odds-total hide"]')[0].select('div')[0].text[2:])
+    
+    # Second Row
+    teams.append(gm.select('div[class="participant-name"]')[1]['title'])
+    opps.append(gm.select('div[class="participant-name"]')[0]['title'])
+    fr = gm.select('div[class="odds--group__event-book book-10039"]')[0].select('div[class="second-row"]')[0]
+    spreads.append(fr.select('div[class="odds-spread"]')[0].select('div')[0].text)
+    mls.append(fr.select('div[class="odds-moneyline hide"]')[0].select('div')[1].text)
+    totals.append(fr.select('div[class="odds-total hide"]')[0].select('div')[0].text[2:])
+    
+odds_shark_games = pd.DataFrame({'Date':tomorrow,
+                                 'Team':teams,
+                                 'Location':'Neutral',
+                                 'Opp':opps,
+                                 'Spread':spreads,
+                                 'ML':mls,
+                                'Total':totals,
+                                })
+for col in ['Spread','ML','Total']:
+    odds_shark_games[col] = pd.to_numeric(odds_shark_games[col], errors='coerce')
+odds_shark_games['Date'] = pd.to_datetime(odds_shark_games['Date'])    
+odds_shark_games = odds_shark_games[~odds_shark_games['Spread'].isna()]
 
 ### Create from files
 opp_conference_reference = conference_reference.rename(columns={'Team':'Opp',
@@ -98,8 +161,8 @@ odds['Date'] = pd.to_datetime(odds['Date'])
 odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
 odds = odds.sort_values('Date', ascending=True)
 team_agg_stats['Date'] = pd.to_datetime(team_agg_stats['Date'])
+odds = pd.concat([odds,odds_shark_games],ignore_index=True)
 
-print('Pre-Processing',len(odds))
 ##################################################
 ###### Processing ################################
 ##################################################
@@ -134,7 +197,6 @@ temp = pd.merge(odds, rankings_ref, on=['Team','DateRef'], how='left')
 oddsv2 = pd.merge(temp, opp_rankings_ref, on=['Opp','DateRef'], how='left')
 oddsv2 = oddsv2.drop_duplicates().reset_index(drop=True)
 
-print('After Processing',len(oddsv2))
 # -------------------------- #
 # -- Create New Variables -- #
 # -------------------------- #
@@ -147,7 +209,6 @@ oddsv2['MLProfit'] = ((oddsv2['ML'] < 0)*(oddsv2['MOV'] > 0)*100 + # Favorite Wi
                       (oddsv2['ML'] > 0)*(oddsv2['MOV'] < 0)*-100 # Underdog Loser
                      )
 
-print('After Profits',len(oddsv2))
 #  -- Game Number --
 oddsv2 = oddsv2.sort_values('Date', ascending=True)
 oddsv2['G'] = oddsv2.groupby(['Team','Season'])['Date'].rank(method = 'first',ascending=True)
@@ -155,7 +216,6 @@ oddsv2['OppG'] = oddsv2.groupby(['Opp','Season'])['Date'].rank(method = 'first',
 # Reset Memory
 del odds
 
-print('After Game Number',len(oddsv2))
 # -- Previous Game Stats --
 # Initialize
 pg_key_cols = ['Team','Season','G']
@@ -177,7 +237,6 @@ oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
 # Reset Memory
 del oddsv2
 
-print('After PG Stats',len(oddsv3))
 # -- Win/Loss & ATS --
 # Basic Result Dummy's
 oddsv3['ResultDummy'] = (oddsv3['MOV'] > 0)*1
@@ -247,7 +306,21 @@ oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
 # Reset Memory
 del oddsv3
 
-print('After Win/Loss Stats',len(oddsv4))
+# -- Natty Tournament --
+oddsv4 = pd.merge(oddsv4, NattyDates, on=['Season'], how='left')
+oddsv4 = pd.merge(oddsv4, marchmadness, on = ['Season','Team'], how='left')
+oddsv4 = pd.merge(oddsv4, oppmarchmadness, on = ['Season','Opp'], how='left')
+
+oddsv4['TourneyGame'] = ((oddsv4['Date'] >= oddsv4['StartNatty']) & (~oddsv4['TourneySeed'].isna()))*1
+oddsv4['TourneyPlayIn'] = ((oddsv4['TourneySeed'] == oddsv4['OppTourneySeed']) &
+                                (oddsv4['TourneySeed'] + oddsv4['OppTourneySeed'] > 15))*1
+
+temp = oddsv4[(oddsv4['TourneyGame'] == 1) &
+                 (oddsv4['TourneyPlayIn'] != 1)].copy()
+temp['TourneyRound'] = temp.groupby(['Season','Team'])['Date'].rank(ascending=True)
+tourneyroundhelperdf = temp[['Date','Team','TourneyRound']]
+oddsv4 = pd.merge(oddsv4, tourneyroundhelperdf, on=['Date','Team'], how='left')
+
 # -- Rematch Stats --
 # Create game ID for Rematch identification
 oddsv4['UniqueGames'] = oddsv4.groupby(['Team','Opp','Season']).G.rank(method='first',ascending=True)
@@ -261,7 +334,6 @@ oddsv5 = pd.merge(oddsv4, temp, on=['Team','Opp','Season','UniqueGames'], how='l
 # Reset Memory
 del oddsv4
 
-print('After Rematch Stats',len(oddsv5))
 # -- Strength of Schedule --
 ## $ Watch for D3 Teams (Maybe fix by only working with Teams where Conf != np.nan?)
 # Initialize
@@ -330,7 +402,6 @@ oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','OppG','Opp'], how='left')
 # Reset Memory
 del oddsv5
 
-print('After SOS',len(oddsv6))
 # -- Variance of Play --
 ### Variance of Play defined as Spread in Wins minus Spread in Losses ###
 # Temp variables
@@ -364,7 +435,6 @@ oddsv8['VOPsum'] = oddsv8['VOP'] + oddsv8['OppVOP']
 # Reset Memory
 del oddsv7
 
-print('After VOP',len(oddsv8))
 # -- Close Game Weighted Record -- 
 # Sort Values
 oddsv8 = oddsv8.sort_values('Date')
@@ -377,7 +447,6 @@ oddsv8['CGWR'] = oddsv8.groupby(['Season','Team'])['tempCGWR'].cumsum() - oddsv8
 oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 # Reset Memory
 del oddsv8
-print('After CGWP',len(oddsv9))
 
 # -- Merge Team DB with Player DB --
 odds_wip = pd.merge(oddsv9, team_agg_stats.drop('MP',axis=1), on = ['Team','Season','Date'], how='left')
@@ -390,10 +459,6 @@ temp.columns = ['Opp'+col if col in temp_col_list else col for col in team_agg_s
 temp.rename(columns={'Team':'Opp'},inplace=True)
 # Merge
 final_odds = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
-print('final_odds Length: ',len(final_odds))
-print('final_odds Columns: ',len(final_odds.columns))
-print('team_agg_stats Length: ',len(team_agg_stats))
-print('team_agg_stats Columns: ',len(team_agg_stats.columns))
 
 ##################################################
 ###### End Processing ############################
