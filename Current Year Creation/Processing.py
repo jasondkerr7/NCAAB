@@ -361,7 +361,7 @@ for i in range(0,len(unique_team_seasons)):
     rec_dict[unique_team_seasons.loc[i,'Team']][unique_team_seasons.loc[i,'Season']] = {}
 ### Fill Dict with Team Records for each Date
 for i in range(0,len(oddsv5)):
-    rec_dict[oddsv5.loc[i,'Team']][oddsv5.loc[i,'Season']][oddsv5.loc[i,'Date']] = {'W':oddsv5.loc[i,'W']+oddsv5.loc[i,'ResultDummy'],
+    rec_dict[oddsv5.loc[i,'Team']][oddsv5.loc[i,'Season']][oddsv5.loc[i,'Date']] = {'W':oddsv5.loc[i,'W']+(oddsv5.loc[i,'ResultDummy']==1)*1,
                                                                                      'L':oddsv5.loc[i,'L']+(oddsv5.loc[i,'ResultDummy']==0)*1}
 #### Create 0-0 July 4th Record for each team that will match with the start of the season
 for tm in rec_dict.keys():
