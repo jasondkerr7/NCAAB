@@ -475,6 +475,7 @@ oddsv9 = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
 # -- Merge Current Stats with Future Games --
 tomorrow_stats = team_agg_stats.sort_values('Date',ascending=False).drop_duplicates('Team')
 tomorrow_stats['Date'] = tomorrow
+tomorrow_stats['Date'] = pd.datetime(tomorrow_stats['Date'])
 oddsv9 = pd.merge(oddsv9, tomorrow_stats, on = ['Team','Season','Date'], how='left')
 
 # Opponent Stats
