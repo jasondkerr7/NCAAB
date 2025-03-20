@@ -84,7 +84,8 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 odds = pd.read_csv('https://docs.google.com/uc?id=1d6slsiCtovW0zJgG5eqrgAFzJEW17r7K').rename(columns={'Opponent':'Opp'})
 rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vOF46aunn')
 conference_reference = pd.read_csv('https://docs.google.com/uc?id=1ewDetzYCoyS5hnVBMjXaiTSM_fLop3wy')[['Team','Conf','Season']]
-team_agg_stats = pd.read_csv('https://docs.google.com/uc?id=1yYXa7aWdXYYE2D6vdbElkThdOlIgM5zz')
+temp = pd.read_csv('https://docs.google.com/uc?id=1yYXa7aWdXYYE2D6vdbElkThdOlIgM5zz')
+team_agg_stats = temp.drop('MP',axis=1)
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1GAILK1kQ4BPGvIs3E0a-M83yeCYofiQfSbFpp4NNnHI/export?format=csv&gid=0')
 NattyDates = temp.loc[~temp['Season'].isna(),['Season','StartNatty']]
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1WgzvFxF8Ze3aQ5smjSMvAedVlbhkqh97sP7lvXCmSv8/export?format=csv&gid=0')
@@ -451,6 +452,7 @@ oddsv8 = oddsv8.sort_values('Date')
 
 # Results weighted by Closeness of Games to determine clutch value
 oddsv8['tempCGWR'] = np.maximum(0.1, (1-((abs(oddsv8['MOV'])/100)**3)*3000))*(oddsv8['MOV']/oddsv8['MOV'].abs())
+oddsv8['tempCGWR'] = oddsv8['tempCGWR'].fillna(0)
 oddsv8['CGWR'] = oddsv8.groupby(['Season','Team'])['tempCGWR'].cumsum() - oddsv8['tempCGWR']
 
 # Drop Temp
@@ -459,16 +461,28 @@ oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 del oddsv8
 
 # -- Merge Team DB with Player DB --
-odds_wip = pd.merge(oddsv9, team_agg_stats.drop('MP',axis=1), on = ['Team','Season','Date'], how='left')
+odds_wip = pd.merge(oddsv9, team_agg_stats, on = ['Team','Season','Date'], how='left')
 
 # Opponents
 temp_col_list = all_agg_stats + ['Def' + col for col in total_stats_col]
 # Opponent Stats
-temp = team_agg_stats.drop('MP',axis=1)
-temp.columns = ['Opp'+col if col in temp_col_list else col for col in team_agg_stats.drop('MP',axis=1).columns]
+temp = team_agg_stats.copy()
+temp.columns = ['Opp'+col if col in temp_col_list else col for col in team_agg_stats.columns]
 temp.rename(columns={'Team':'Opp'},inplace=True)
 # Merge
-final_odds = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
+oddsv9 = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
+
+# -- Merge Current Stats with Future Games --
+tomorrow_stats = team_agg_stats.sort_values('Date',ascending=False).drop_duplicates('Team')
+tomorrow_stats['Date'] = tomorrow
+oddsv9 = pd.merge(oddsv9, tomorrow_stats, on = ['Team','Season','Date'], how='left')
+
+# Opponent Stats
+temp = tomorrow_stats.copy()
+temp.columns = ['Opp'+col if col in temp_col_list else col for col in tomorrow_stats.columns]
+temp.rename(columns={'Team':'Opp'},inplace=True)
+# Merge
+final_odds = pd.merge(oddsv9, temp, on = ['Opp','Season','Date'], how='left')
 
 ##################################################
 ###### End Processing ############################
