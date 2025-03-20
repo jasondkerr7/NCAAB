@@ -461,6 +461,10 @@ oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 del oddsv8
 
 # -- Merge Team DB with Player DB --
+tomorrow_stats = team_agg_stats.sort_values('Date',ascending=False).drop_duplicates('Team')
+tomorrow_stats['Date'] = tomorrow
+tomorrow_stats['Date'] = pd.to_datetime(tomorrow_stats['Date'])
+team_agg_stats = pd.concat([team_agg_stats, tomorrow_stats], ignore_index=True)
 odds_wip = pd.merge(oddsv9, team_agg_stats, on = ['Team','Season','Date'], how='left')
 
 # Opponents
@@ -470,20 +474,7 @@ temp = team_agg_stats.copy()
 temp.columns = ['Opp'+col if col in temp_col_list else col for col in team_agg_stats.columns]
 temp.rename(columns={'Team':'Opp'},inplace=True)
 # Merge
-oddsv9 = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
-
-# -- Merge Current Stats with Future Games --
-tomorrow_stats = team_agg_stats.sort_values('Date',ascending=False).drop_duplicates('Team')
-tomorrow_stats['Date'] = tomorrow
-tomorrow_stats['Date'] = pd.to_datetime(tomorrow_stats['Date'])
-oddsv9 = pd.merge(oddsv9, tomorrow_stats, on = ['Team','Season','Date'], how='left')
-
-# Opponent Stats
-temp = tomorrow_stats.copy()
-temp.columns = ['Opp'+col if col in temp_col_list else col for col in tomorrow_stats.columns]
-temp.rename(columns={'Team':'Opp'},inplace=True)
-# Merge
-final_odds = pd.merge(oddsv9, temp, on = ['Opp','Season','Date'], how='left')
+final_odds = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
 
 ##################################################
 ###### End Processing ############################
