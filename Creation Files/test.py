@@ -63,16 +63,13 @@ time.sleep(2)
 
 driver.save_screenshot('screenie.png')
 
-with open('screenie.png', 'rb') as content_file:
-  file_content = content_file.read()
-
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
-file_metadata = {'name': creation_name+'.csv'}
+file_metadata = {'name': 'screen1e.png',
+                'parents':['1DdTC37ao2EK23f-dnQ5Tj9EvgoS9BaIW']}
 media = MediaFileUpload('screenie.png',
                         mimetype='image/png')
-file = ggl_drive.files().update(fileId='1JSa-KqrY3TnE9tyiUxoznbHPwL2JimqT',
-                                body=file_metadata, 
+file = ggl_drive.files().create(body=file_metadata, 
                                 media_body=media,
                               fields=returned_fields).execute()
 
