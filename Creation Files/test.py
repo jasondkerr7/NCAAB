@@ -66,6 +66,13 @@ driver.save_screenshot('screenie.png')
 with open('screenie.png', 'rb') as content_file:
   file_content = content_file.read()
 
-# Upload
-target_folder.upload_file('testing.png', file_content).execute_query()
+# Upload File
+returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
+file_metadata = {'name': creation_name+'.csv'}
+media = MediaFileUpload('screenie.png',
+                        mimetype='image/png')
+file = ggl_drive.files().update(fileId='1JSa-KqrY3TnE9tyiUxoznbHPwL2JimqT',
+                                body=file_metadata, 
+                                media_body=media,
+                              fields=returned_fields).execute()
 
