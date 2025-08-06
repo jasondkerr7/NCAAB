@@ -48,6 +48,13 @@ import json
 import lxml
 import sys
 
+# Connect to the google service account
+scope = ['https://www.googleapis.com/auth/drive']
+credentials = service_account.Credentials.from_service_account_info(
+                              info=service_account_cred, 
+                              scopes=scope)
+ggl_drive = build('drive', 'v3', credentials=credentials)
+
 # Setup Connection
 service = Service()
 options = webdriver.ChromeOptions()
