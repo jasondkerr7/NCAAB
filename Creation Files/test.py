@@ -48,6 +48,13 @@ import json
 import lxml
 import sys
 
+# -- GOOGLE CONNECTION -- #
+# Prepare auth json for google connection
+cred_json = os.environ['SERVICE_ACCOUNT_CREDENTIALS_JSON']
+s_char = cred_json.index('~~~')
+e_char = cred_json.index('%%%')
+service_account_cred = eval(cred_json[s_char+3:e_char])
+
 # Connect to the google service account
 scope = ['https://www.googleapis.com/auth/drive']
 credentials = service_account.Credentials.from_service_account_info(
