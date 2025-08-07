@@ -62,7 +62,7 @@ credentials = service_account.Credentials.from_service_account_info(
                               scopes=scope)
 ggl_drive = build('drive', 'v3', credentials=credentials)
 
-# Setup Connection
+# Setup Selenium Connection
 service = Service()
 options = webdriver.ChromeOptions()
 options.add_argument("--headless=new")
@@ -71,11 +71,85 @@ options.add_argument(f'user-agent={user_agent}')
 driver = webdriver.Chrome(service=service, options=options)
 
 # Access Website
-driver.get('chrome://settings/downloads')
+driver.get('https://briteswitch.com/RebatePro-EVChargers/power-filter.php')
+# Login
+driver.find_element(By.XPATH,'//input[@placeholder="Login"]').send_keys("jkerr@evconnect.com")
+time.sleep(0.2)
+driver.find_element(By.XPATH,'//input[@placeholder="Password"]').send_keys("49856")
+time.sleep(0.4)
+driver.find_element(By.XPATH,'//button[@type="submit"]').click()
+time.sleep(2.1)
 
-time.sleep(2)
+# Email Verification
+for xyz in range(0,10):
+  # Sleep for the Email to arrive
+  time.sleep(20)
+  # Retrieve Authorization Token
+  server = 'imap.gmail.com'
 
+  USERNAME = guser
+  PASSWORD = gpwd
+
+  mail = imaplib.IMAP4_SSL(server)
+  # conn.set_debuglevel(False)
+  mail.login(USERNAME, PASSWORD)
+  mail.select('inbox')
+  status, data = mail.search(None, 'ALL')
+  status, first_email = mail.fetch(data[0].split()[-1], '(RFC822)')
+
+  for r in first_email:
+    if isinstance(r, tuple):
+      message = email.message_from_bytes(r[1])
+    if message.is_multipart():
+      content = message.get_payload()[0].get_payload()
+    else:
+      content = message.get_payload()
+    sending_email = message['from']
+  try:
+    token = re.search(".*Token: (.*)\\r", content).group(1)
+    break
+  except:
+    continue 
+
+driver.set_window_size(600, 700)
+# Authorize with Token
+driver.find_element(By.XPATH,'//input[@placeholder="Enter the emailed token"]').clear()
+time.sleep(0.5)
+driver.find_element(By.XPATH,'//input[@placeholder="Enter the emailed token"]').send_keys(token)
+time.sleep(0.9)
+driver.find_element(By.XPATH,'//input[@placeholder="Login"]').clear()
+time.sleep(0.5)
+driver.find_element(By.XPATH,'//input[@placeholder="Login"]').send_keys("jkerr@evconnect.com")
+time.sleep(0.6)
+try:
+  driver.find_element(By.XPATH,'//button[text()="Authorize Device"]').click()
+except:
+  time.sleep(2)
+  driver.find_element(By.XPATH,'//button[text()="Authorize Device"]').click()
+time.sleep(0.6)
+driver.set_window_size(1400, 820)
+
+# Login Again
+driver.find_element(By.XPATH,'//input[@placeholder="Login"]').clear()
+time.sleep(0.2)
+driver.find_element(By.XPATH,'//input[@placeholder="Login"]').send_keys("jkerr@evconnect.com")
+time.sleep(0.2)
+driver.find_element(By.XPATH,'//input[@placeholder="Password"]').send_keys("49856")
+time.sleep(0.4)
+driver.find_element(By.XPATH,'//button[@type="submit"]').click()
+time.sleep(4.1)
+
+# Screenshot what's going on
 driver.save_screenshot('screenie.png')
+
+# Prepare Download
+try:
+  driver.find_element(By.XPATH,'//button[@id="dropdownMenuButton"]').click() 
+  time.sleep(0.8)
+  driver.find_element(By.XPATH,'//a[@class="dropdown-item" and text()="Rebate Program"]').click() 
+  time.sleep(0.7)
+except:
+  print('Still didnt work')
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
