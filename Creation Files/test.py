@@ -182,17 +182,18 @@ time.sleep(0.4)
 driver.find_element(By.XPATH,'//button[@type="submit"]').click()
 time.sleep(4.1)
 
-# Screenshot what's going on
-driver.save_screenshot('screenie.png')
-
 # Prepare Download
 try:
   driver.find_element(By.XPATH,'//button[@id="dropdownMenuButton"]').click() 
   time.sleep(0.8)
   driver.find_element(By.XPATH,'//a[@class="dropdown-item" and text()="Rebate Program"]').click() 
   time.sleep(0.7)
+  print('it did work')
 except:
   print('Still didnt work')
+
+# Screenshot what's going on
+driver.save_screenshot('screenie.png')
 
 # Upload File
 returned_fields="id, name, mimeType, webViewLink, exportLinks, parents"
