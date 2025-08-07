@@ -54,6 +54,8 @@ cred_json = os.environ['SERVICE_ACCOUNT_CREDENTIALS_JSON']
 s_char = cred_json.index('~~~')
 e_char = cred_json.index('%%%')
 service_account_cred = eval(cred_json[s_char+3:e_char])
+guser = os.environ['G_USERNAME']
+gpwd = os.environ['G_PASSWORD']
 
 # Connect to the google service account
 scope = ['https://www.googleapis.com/auth/drive']
