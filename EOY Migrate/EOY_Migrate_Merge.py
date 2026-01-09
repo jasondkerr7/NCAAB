@@ -95,8 +95,8 @@ cy_rankings['Date'] = pd.to_datetime(cy_rankings['Date'])
 cy_processed['Date'] = pd.to_datetime(cy_processed['Date'])
 prev_odds['Date'] = pd.to_datetime(prev_odds['Date'])
 prev_playerstats['Date'] = pd.to_datetime(prev_playerstats['Date'])
-prev_rankings['Date'] = pd.to_datetime(prev_rankings['Date']
-prev_processed['Date'] = pd.to_datetime(prev_processed['Date']))
+prev_rankings['Date'] = pd.to_datetime(prev_rankings['Date'])
+prev_processed['Date'] = pd.to_datetime(prev_processed['Date'])
 # Sort for proper merging
 cy_odds.sort_values(['Date'], ascending=True)
 cy_playerstats.sort_values(['Date'], ascending=True)
