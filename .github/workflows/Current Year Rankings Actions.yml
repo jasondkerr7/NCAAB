@@ -5,13 +5,7 @@ name: NCAAB Creation (Current Year Rankings)
 on: 
    workflow_dispatch:
    schedule:
-     - cron: "01 21 * * 2" # Every Tuesday at 9:01 UTC (4:01 EST)
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  # schedule:
-    # - cron: '00 21 24 7 *' # July 24th, 9:00 UTC (2:00 PST)
-  # push:
-  #   branches:
-  #     - 'main'
+     - cron: "11 16 * * 2" # Every Tuesday at 16:11 UTC (1:11 EST)
 
 # Secret variables for authentication
 env:
