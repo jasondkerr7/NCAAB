@@ -40,4 +40,7 @@ jobs:
           pip install -r requirements.txt
       - name: Run the Processing python file
         run: |
-          python "Creation Files/Processing.py" 
+          python "Creation Files/Processing Part 1.py" 
+      # - name: Run the Test python file
+      #   run: |
+      #     python "Creation Files/test.py"
