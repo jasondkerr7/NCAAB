@@ -70,7 +70,7 @@ teamhelp = dict(zip(temp['Team Rankings'],temp['Pandas']))
 
 # -- Odds -- #
 # Initiate
-if datetime.datetime.today().month < 7:
+if datetime.today().month < 7:
   yearref = datetime.today().year
 else:
   yearref = datetime.today().year + 1
