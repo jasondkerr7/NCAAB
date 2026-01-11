@@ -261,3 +261,4 @@ file = ggl_drive.files().update(fileId='1yYXa7aWdXYYE2D6vdbElkThdOlIgM5zz',
                                 body=file_metadata, 
                                 media_body=media,
                               fields=returned_fields).execute()
+print('After Upload: ', returned_fields)
