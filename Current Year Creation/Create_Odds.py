@@ -78,7 +78,7 @@ if len(previous_odds) < 1:
   start_date = str(yearref)+'-10-01'
 else:
   start_date = (pd.to_datetime(previous_odds['Date'].max()) - timedelta(days=1)).strftime("%Y-%m-%d")
-end_date = str(yearref)+'-06-01'
+end_date = str(yearref-1)+'-06-01'
 
 # Setup Connection
 service = Service()
