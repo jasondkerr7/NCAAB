@@ -82,7 +82,7 @@ ggl_drive = build('drive', 'v3', credentials=credentials)
 # -- Read Files -- #
 # Creation Files
 odds = pd.read_csv('https://docs.google.com/uc?id=1d6slsiCtovW0zJgG5eqrgAFzJEW17r7K').rename(columns={'Opponent':'Opp'})
-rankings = pd.read_csv('https://docs.google.com/uc?id=1gRwZVVxARkDCWkR9hXMopW3vOF46aunn')
+rankings = pd.read_csv('https://docs.google.com/uc?id=1YI5txYdHgmB3Sw_wwxY0eLsaXzD4dyrr')
 conference_reference = pd.read_csv('https://docs.google.com/uc?id=1ewDetzYCoyS5hnVBMjXaiTSM_fLop3wy')[['Team','Conf','Season']]
 temp = pd.read_csv('https://docs.google.com/uc?id=1yYXa7aWdXYYE2D6vdbElkThdOlIgM5zz')
 team_agg_stats = temp.drop('MP',axis=1)
