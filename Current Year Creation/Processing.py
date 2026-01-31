@@ -112,10 +112,6 @@ driver = webdriver.Chrome(service=service, options=options)
 # Access Website
 driver.get('https://www.covers.com/sport/basketball/ncaab/odds')
 time.sleep(3)
-driver.find_element(By.XPATH,'//button[contains(text(),"Spread/Total")]').click()
-time.sleep(0.5)
-driver.find_element(By.XPATH,'//a[contains(text(),"Spread/Total") and @class="dropdown-item"]').click()
-time.sleep(3)
 # Generate List of Columns to check
 page_source = driver.page_source
 soup = BeautifulSoup(page_source)
