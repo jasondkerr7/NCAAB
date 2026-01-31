@@ -32,12 +32,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      # - name: Run the Odds Creation python file
-      #   run: |
-      #     python "Current Year Creation/Create_Odds.py"
-      # - name: Run the Player Stats python file
-      #   run: |
-      #     python "Current Year Creation/Create_Player_Stats.py"
+      - name: Run the Odds Creation python file
+        run: |
+          python "Current Year Creation/Create_Odds.py"
+      - name: Run the Player Stats python file
+        run: |
+          python "Current Year Creation/Create_Player_Stats.py"
       - name: Run the Processing python file
         run: |
           python "Current Year Creation/Processing.py"
