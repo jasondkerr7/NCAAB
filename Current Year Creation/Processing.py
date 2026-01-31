@@ -268,6 +268,7 @@ opp_rankings_ref = rankings_ref.rename(columns={'Team':'Opp',
 temp = pd.merge(odds, rankings_ref, on=['Team','DateRef'], how='left')
 oddsv2 = pd.merge(temp, opp_rankings_ref, on=['Opp','DateRef'], how='left')
 oddsv2 = oddsv2.drop_duplicates().reset_index(drop=True)
+print('oddsv2 len: ',oddsv2)
 
 # -------------------------- #
 # -- Create New Variables -- #
@@ -308,6 +309,7 @@ temp = pd.merge(oddsv2, previous_game_ref, on=pg_key_cols, how='left')
 oddsv3 = pd.merge(temp, opp_previous_game_ref, on=opp_pg_key_cols, how='left')
 # Reset Memory
 del oddsv2
+print('oddsv3 len: ',oddsv3)
 
 # -- Win/Loss & ATS --
 # Basic Result Dummy's
@@ -377,6 +379,7 @@ opprecords = opprecords.rename(columns=temp)
 oddsv4 = pd.merge(oddsv3, opprecords, on = ['Season','Opp','OppG'], how='left')
 # Reset Memory
 del oddsv3
+print('oddsv4 len: ',oddsv4)
 
 # -- Natty Tournament --
 oddsv4 = pd.merge(oddsv4, NattyDates, on=['Season'], how='left')
@@ -405,6 +408,7 @@ temp.columns = ['Team','Opp','Season','UniqueGames','RematchLocation','RematchMO
 oddsv5 = pd.merge(oddsv4, temp, on=['Team','Opp','Season','UniqueGames'], how='left')
 # Reset Memory
 del oddsv4
+print('oddsv5 len: ',oddsv5)
 
 # -- Strength of Schedule --
 ## $ Watch for D3 Teams (Maybe fix by only working with Teams where Conf != np.nan?)
@@ -473,6 +477,7 @@ oppsosref = oddsv5[['Date','G','Team','SOS']].copy().rename(columns={'Team':'Opp
 oddsv6 = pd.merge(oddsv5, oppsosref, on=['Date','OppG','Opp'], how='left')
 # Reset Memory
 del oddsv5
+print('oddsv6 len: ',oddsv6)
 
 # -- Variance of Play --
 ### Variance of Play defined as Spread in Wins minus Spread in Losses ###
@@ -495,6 +500,7 @@ for var in ['VOPW','VOPL','VOP']:
 oddsv7 = oddsv6.drop(['tempSpreadInLoss','tempSpreadInWin'],axis=1)
 # Reset Memory
 del oddsv6
+print('oddsv7 len: ',oddsv7)
 
 # Opponent VOP
 oppvopref = oddsv7[['Date','Team','G','VOPW','VOPL','VOP']].copy().rename(columns={'Team':'Opp',
@@ -506,6 +512,7 @@ oddsv8 = pd.merge(oddsv7, oppvopref, on=['Date','OppG','Opp'], how='left')
 oddsv8['VOPsum'] = oddsv8['VOP'] + oddsv8['OppVOP']
 # Reset Memory
 del oddsv7
+print('oddsv8 len: ',oddsv8)
 
 # -- Close Game Weighted Record -- 
 # Sort Values
@@ -520,6 +527,7 @@ oddsv8['CGWR'] = oddsv8.groupby(['Season','Team'])['tempCGWR'].cumsum() - oddsv8
 oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 # Reset Memory
 del oddsv8
+print('oddsv9 len: ',oddsv9)
 
 # -- Merge Team DB with Player DB --
 today_stats = team_agg_stats.sort_values('Date',ascending=False).drop_duplicates('Team')
