@@ -529,21 +529,7 @@ oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 del oddsv8
 print('oddsv9 len: ',oddsv9)
 
-# -- Merge Team DB with Player DB --
-today_stats = team_agg_stats.sort_values('Date',ascending=False).drop_duplicates('Team')
-today_stats['Date'] = today
-today_stats['Date'] = pd.to_datetime(today_stats['Date'])
-team_agg_stats = pd.concat([team_agg_stats, today_stats], ignore_index=True)
-odds_wip = pd.merge(oddsv9, team_agg_stats, on = ['Team','Season','Date'], how='left')
-
-# Opponents
-temp_col_list = all_agg_stats + ['Def' + col for col in total_stats_col]
-# Opponent Stats
-temp = team_agg_stats.copy()
-temp.columns = ['Opp'+col if col in temp_col_list else col for col in team_agg_stats.columns]
-temp.rename(columns={'Team':'Opp'},inplace=True)
-# Merge
-final_odds = pd.merge(odds_wip, temp, on = ['Opp','Season','Date'], how='left')
+final_odds = oddsv8.copy()
 
 ##################################################
 ###### End Processing ############################
