@@ -161,6 +161,7 @@ player_agg_stats['StarRank'] = player_agg_stats.groupby(['Team','Date'])['TotalO
 # Team Season Stats #
 
 # Dummy DF for Current Stats
+team_game_logs = ncaa_player_wip.groupby(['Team','Date','Season'])[total_stats_col].sum().reset_index()
 current_stats_dummy = team_game_logs.drop_duplicates('Team')
 current_stats_dummy['Date'] = today 
 for col in total_stats_col:
