@@ -51,7 +51,7 @@ player_info_col = ['Player','Height', 'Class', 'PID']
 
 game_info_col = ['Team', 'Opp', 'Date', 'ResultDummy', 'Season']
 
-yearref = (datetime.today().dt.month > 6)*1 + odds['Date'].dt.year
+yearref = (datetime.today().month > 6)*1 + datetime.today().year
 
 # -- GOOGLE CONNECTION -- #
 # Prepare auth json for google connection
