@@ -126,6 +126,8 @@ m = []
 
 for game in soup.find('table',{'id':'spread-total-table'}).find_all('tr',{'class':'oddsGameRow'}):
     try:
+        if game.find('td',{'class':'left-cell'}).find('div',{'class':'td-cell game-time'}).text[0:5] != 'Today':
+          continue
         away_team = game.find('td',{'class':'left-cell'}).find('div',{'class':'td-cell away-cell'}).find('strong').text
         home_team = game.find('td',{'class':'left-cell'}).find('div',{'class':'td-cell home-cell'}).find('strong').text
         # Away Team spread or total
