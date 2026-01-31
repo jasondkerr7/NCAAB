@@ -53,6 +53,8 @@ game_info_col = ['Team', 'Opp', 'Date', 'ResultDummy', 'Season']
 
 yearref = (datetime.today().month > 6)*1 + datetime.today().year
 
+today = pd.to_datetime(datetime.today().strftime('%Y%m%d'))
+
 # -- GOOGLE CONNECTION -- #
 # Prepare auth json for google connection
 cred_json = os.environ['SERVICE_ACCOUNT_CREDENTIALS_JSON']
@@ -158,8 +160,15 @@ player_agg_stats['StarRank'] = player_agg_stats.groupby(['Team','Date'])['TotalO
 
 # Team Season Stats #
 
+# Dummy DF for Current Stats
+current_stats_dummy = team_game_logs.drop_duplicates('Team')
+current_stats_dummy['Date'] = today 
+for col in total_stats_col:
+    team_agg_stats[col] = 0
+
 # Generate Team Game Logs
 team_game_logs = ncaa_player_wip.groupby(['Team','Date','Season'])[total_stats_col].sum().reset_index()
+team_game_logs = pd.concat([team_game_logs,current_stats_dummy], axis=0, ignore_index=True)
 # Aggregate for Season Stats
 temp = team_game_logs.sort_values('Date').copy()
 # Loop through Stats to Aggregate
@@ -175,6 +184,7 @@ for col in total_stats_col:
 
 # Generate Team Game Logs
 team_def_game_logs = ncaa_player_wip.groupby(['Opp','Date','Season'])[total_stats_col].sum().reset_index()
+team_def_game_logs = pd.concat([team_def_game_logs,current_stats_dummy.rename(columns={'Team':'Opp'})], axis=0, ignore_index=True)
 
 # Aggregate for Season Stats
 temp = team_def_game_logs.sort_values('Date').copy()
