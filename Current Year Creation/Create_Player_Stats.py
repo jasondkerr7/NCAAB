@@ -51,6 +51,8 @@ player_info_col = ['Player','Height', 'Class', 'PID']
 
 game_info_col = ['Team', 'Opp', 'Date', 'ResultDummy', 'Season']
 
+yearref = (datetime.today().dt.month > 6)*1 + odds['Date'].dt.year
+
 # -- GOOGLE CONNECTION -- #
 # Prepare auth json for google connection
 cred_json = os.environ['SERVICE_ACCOUNT_CREDENTIALS_JSON']
@@ -93,7 +95,7 @@ teamhelp_os.pop(np.nan, 'nope')
 ncaa_player_wip = pd.DataFrame()
 
 testfile = urllib.request.URLopener()
-testfile.retrieve("https://barttorvik.com/2025_all_advgames.json.gz", "file.gz")
+testfile.retrieve("https://barttorvik.com/"+str(yearref)+"_all_advgames.json.gz", "file.gz")
 with gzip.GzipFile("file.gz", 'r') as fin:
     json_bytes = fin.read()
 json_str = json_bytes.decode('utf-8')
