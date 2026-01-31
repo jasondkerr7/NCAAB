@@ -96,11 +96,12 @@ oppmarchmadness = temp[['Season','Team','Seed','Berth']].rename(columns={'Team':
                                                                    'Berth':'OppTourneyBerth'}).copy()
 # Team Help
 temp = pd.read_csv('https://docs.google.com/spreadsheets/d/1D9eKEUM_B3gXs3ukfj0_704YzG3Iw4u2_ATdj21JvGE/export?format=csv&gid=0')
-teamhelp = dict(zip(temp['Odds Shark Opponents'],temp['Pandas']))
+teamhelp = dict(zip(temp['Cover Abbreviations'],temp['Pandas']))
 
 ############
 # Read in Upcoming Games
 ############
+today = (datetime.today()).strftime('%m/%d/%y')
 # Setup Connection
 service = Service()
 options = webdriver.ChromeOptions()
@@ -108,65 +109,127 @@ options.add_argument("--headless=new")
 user_agent = 'Chrome/60.0.3112.50'
 options.add_argument(f'user-agent={user_agent}')
 driver = webdriver.Chrome(service=service, options=options)
+# Access Website
+driver.get('https://www.covers.com/sport/basketball/ncaab/odds')
+time.sleep(3)
+driver.find_element(By.XPATH,'//button[contains(text(),"Spread/Total")]').click()
+time.sleep(0.5)
+driver.find_element(By.XPATH,'//a[contains(text(),"Spread/Total") and @class="dropdown-item"]').click()
+time.sleep(3)
+# Generate List of Columns to check
+page_source = driver.page_source
+soup = BeautifulSoup(page_source)
 
-for xy in range(0,5):
+# Spreads
+te = []
+o = []
+l = []
+s = []
+to = []
+m = []
+
+for game in soup.find('table',{'id':'spread-total-table'}).find_all('tr',{'class':'oddsGameRow'}):
     try:
-        # Access Website
-        soup = BeautifulSoup(requests.get('https://www.oddsshark.com/ncaab/odds').content)
+        away_team = game.find('td',{'class':'left-cell'}).find('div',{'class':'td-cell away-cell'}).find('strong').text
+        home_team = game.find('td',{'class':'left-cell'}).find('div',{'class':'td-cell home-cell'}).find('strong').text
+        # Away Team spread or total
+        temp = game.find('td',{'data-book':'BetMGM'}).find('div',{'class':'td-cell away-cell'}).find('a').text
+        aa = temp.find('-')
+        bb = temp.find('+')
+        cc = temp.find('u')
+        dd = temp.find('o')
+        ee = min([x for x in [aa,bb,cc,dd] if x >= 0])
+        first_data = temp[ee:temp.find('\xa0')]
+        # Home Team spread or total
+        temp = game.find('td',{'data-book':'BetMGM'}).find('div',{'class':'td-cell home-cell'}).find('a').text
+        aa = temp.find('-')
+        bb = temp.find('+')
+        cc = temp.find('u')
+        dd = temp.find('o')
+        ee = min([x for x in [aa,bb,cc,dd] if x >= 0])
+        second_data = temp[ee:temp.find('\xa0')]
+        # Sort between totals and spreads
+        if first_data[0] == '-':
+            away_spread = float(first_data)
+            total = float(float(second_data.replace('o', '').replace('u','')))
+        else:
+            away_spread = float(second_data)*-1
+            total = float(float(first_data.replace('o', '').replace('u','')))
 
-        # Initialize
-        teams = []
-        opps = []
-        spreads = []
-        mls = []
-        totals = []
-        tomorrow = (datetime.today() + timedelta(days=1)).strftime('%m/%d/%y')
-
-        for gm in soup.select('div[class*="odds--group__event-container basketball"]'):
-            # First Row
-            teams.append(gm.select('div[class="participant-name"]')[0]['title'])
-            opps.append(gm.select('div[class="participant-name"]')[1]['title'])
-            fr = gm.select('div[class="odds--group__event-book book-10039"]')[0].select('div[class="first-row"]')[0]
-            spreads.append(fr.select('div[class="odds-spread"]')[0].select('div')[0].text)
-            mls.append(fr.select('div[class="odds-moneyline hide"]')[0].select('div')[1].text)
-            totals.append(fr.select('div[class="odds-total hide"]')[0].select('div')[0].text[2:])
-            
-            # Second Row
-            teams.append(gm.select('div[class="participant-name"]')[1]['title'])
-            opps.append(gm.select('div[class="participant-name"]')[0]['title'])
-            fr = gm.select('div[class="odds--group__event-book book-10039"]')[0].select('div[class="second-row"]')[0]
-            spreads.append(fr.select('div[class="odds-spread"]')[0].select('div')[0].text)
-            mls.append(fr.select('div[class="odds-moneyline hide"]')[0].select('div')[1].text)
-            totals.append(fr.select('div[class="odds-total hide"]')[0].select('div')[0].text[2:])
-        break
+        te.append(away_team)
+        te.append(home_team)
+        o.append(home_team)
+        o.append(away_team)
+        l.append('Away')
+        l.append('Home')
+        s.append(away_spread)
+        s.append(away_spread*-1)
+        to.append(total)
+        to.append(total)
     except:
-        time.sleep(2)
-        print('Attempt #',xy)
         continue
-    
-odds_shark_games = pd.DataFrame({'Date':tomorrow,
-                                 'Team':teams,
-                                 'Location':'Neutral',
-                                 'Opp':opps,
-                                 'Spread':spreads,
-                                 'ML':mls,
-                                'Total':totals,
-                                })
+        
+dfs = pd.DataFrame({'Team':te,
+                   'Opp':o,
+                   'Location':l,
+                   'Spread':s,
+                   'Total':to
+})
+
+# MoneyLines
+te = []
+o = []
+l = []
+s = []
+to = []
+m = []
+        
+for game in soup.find('table',{'id':'moneyline-table'}).find_all('tr',{'class':'oddsGameRow'}):
+    try:
+        away_team = game.find('td',{'class':'left-cell'}).find('div',{'class':'td-cell away-cell'}).find('strong').text
+        home_team = game.find('td',{'class':'left-cell'}).find('div',{'class':'td-cell home-cell'}).find('strong').text
+        # Away Team spread or total
+        temp = game.find('td',{'data-book':'BetMGM'}).find('div',{'class':'td-cell away-cell'}).find('a').text
+        awayml = float(temp.split('\n')[1])
+        # Home Team spread or total
+        temp = game.find('td',{'data-book':'BetMGM'}).find('div',{'class':'td-cell home-cell'}).find('a').text
+        homeml = float(temp.split('\n')[1])
+        # Sort between totals and spreads
+
+        te.append(away_team)
+        te.append(home_team)
+        o.append(home_team)
+        o.append(away_team)
+        l.append('Away')
+        l.append('Home')
+        m.append(awayml)
+        m.append(homeml)
+    except:
+        continue
+
+dfm = pd.DataFrame({'Team':te,
+                   'Opp':o,
+                   'Location':l,
+                   'ML':m
+})
+
+cover_games = pd.merge(dfs, dfm, on=['Team','Opp','Location'], how='left')
+
 for col in ['Spread','ML','Total']:
-    odds_shark_games[col] = pd.to_numeric(odds_shark_games[col], errors='coerce')
-odds_shark_games['Date'] = pd.to_datetime(odds_shark_games['Date'])    
-odds_shark_games = odds_shark_games[~odds_shark_games['Spread'].isna()]
+    cover_games[col] = pd.to_numeric(cover_games[col], errors='coerce')
+cover_games['Date'] = pd.to_datetime(today)    
+cover_games = cover_games[~cover_games['Spread'].isna()]
 # Fix team names
-odds_shark_games['Team'].replace(teamhelp,inplace=True)
-odds_shark_games['Opp'].replace(teamhelp,inplace=True)
-print('odds_shark_games Length:',len(odds_shark_games))
+cover_games['Team'].replace(teamhelp,inplace=True)
+cover_games['Opp'].replace(teamhelp,inplace=True)
+print('cover_games Length:',len(cover_games))
 
 ### Create from files
 opp_conference_reference = conference_reference.rename(columns={'Team':'Opp',
                                                        'Conf':'OppConf'})
 
 ### Pre-Processing
-odds = pd.concat([odds,odds_shark_games],ignore_index=True)
+odds = pd.concat([odds,cover_games],ignore_index=True)
 rankings['Date'] = pd.to_datetime(rankings['Date'])
 odds['Date'] = pd.to_datetime(odds['Date'])
 odds['Season'] = (odds['Date'].dt.month > 6)*1 + odds['Date'].dt.year
