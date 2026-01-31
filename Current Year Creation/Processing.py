@@ -529,7 +529,7 @@ oddsv9 = oddsv8.drop('tempCGWR',axis=1)
 del oddsv8
 print('oddsv9 len: ',oddsv9)
 
-final_odds = oddsv8.copy()
+final_odds = oddsv9.copy()
 
 ##################################################
 ###### End Processing ############################
