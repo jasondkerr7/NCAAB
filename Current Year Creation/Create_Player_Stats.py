@@ -165,7 +165,7 @@ team_game_logs = ncaa_player_wip.groupby(['Team','Date','Season'])[total_stats_c
 current_stats_dummy = team_game_logs.drop_duplicates('Team')
 current_stats_dummy['Date'] = today 
 for col in total_stats_col:
-    team_agg_stats[col] = 0
+    current_stats_dummy[col] = 0
 
 # Generate Team Game Logs
 team_game_logs = ncaa_player_wip.groupby(['Team','Date','Season'])[total_stats_col].sum().reset_index()
