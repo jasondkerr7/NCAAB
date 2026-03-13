@@ -186,9 +186,6 @@ odds_final = odds_final_wip[odds_final_wip['Date'] > pd.to_datetime(start_date)]
 odds_final['PF'] = pd.to_numeric(odds_final['Score'].str.split('-').str[0])
 odds_final['PA'] = pd.to_numeric(odds_final['Score'].str.split('-').str[1])
 odds_final.drop('Score',axis=1,inplace=True)
-# Fix team names
-odds_final['Team'].replace(teamhelp,inplace=True)
-odds_final['Opponent'].replace(teamhelp,inplace=True)
 # Fix column names
 odds_final = odds_final.rename(columns={'Total (O/U)':'Total',
                                          'Money Line':'ML',
@@ -205,6 +202,10 @@ final = pd.concat([previous_odds, odds_final],ignore_index=True)
 final['Date'] = pd.to_datetime(final['Date'])
 final.sort_values('Date',inplace=True)
 final.drop_duplicates(inplace=True)
+
+# Fix team names
+final['Team'].replace(teamhelp,inplace=True)
+final['Opponent'].replace(teamhelp,inplace=True)
 
 # File Creation
 creation_name = 'Current Year Odds'
