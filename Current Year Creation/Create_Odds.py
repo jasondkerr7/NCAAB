@@ -205,7 +205,7 @@ final.drop_duplicates(inplace=True)
 
 # Fix team names
 final['Team'].replace(teamhelp,inplace=True)
-final['Opponent'].replace(teamhelp,inplace=True)
+final['Opp'].replace(teamhelp,inplace=True)
 
 # File Creation
 creation_name = 'Current Year Odds'
